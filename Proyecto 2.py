@@ -1,4 +1,5 @@
-import pygame,sys
+import pygame,sys,math
+import numpy as np
 
 pygame.init()
 
@@ -93,10 +94,15 @@ def Ayuda():
             pass
 
 def Juego():
-    global screen
     running = True
     board = pygame.image.load("Matriz2.png")
+    matriz = np.zeros((9,5))
+    print(matriz)
 
+    def unoMatriz(r,c):
+        matriz[r][c] = 1
+        print(matriz)
+    
     def loopVentana():
         screen.fill((255,0,0))
         screen.blit(board,(400,0))
@@ -104,13 +110,22 @@ def Juego():
     while running:
         loopVentana()
         pygame.display.update()
-
         #Mantiene la ventana abierta
         for event in pygame.event.get():
+            tamCasilla = 77
+            pos = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()     
-                sys.exit()  
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pos[0] > 400 and pos[0] < 785:
+                    print(pos)
+                    c = int(math.floor((pos[0] - 400)/tamCasilla))
+                    r = int(math.floor(pos[1]/tamCasilla))
+                    unoMatriz(r,c)
+##                else:
+                    pass
 
 mainMenu()  
     
