@@ -112,15 +112,17 @@ def Juego():
         pygame.display.update()
         #Mantiene la ventana abierta
         for event in pygame.event.get():
-            tamCasilla = 77
+            tamCasilla = 77 #Tamaño de cada casilla
             pos = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()     
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            #Asignar valor a la matriz se le hace click
+            if event.type == pygame.MOUSEBUTTONDOWN: 
                 if pos[0] > 400 and pos[0] < 785:
                     print(pos)
+                    #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/tamCasilla))
                     r = int(math.floor(pos[1]/tamCasilla))
                     unoMatriz(r,c)
