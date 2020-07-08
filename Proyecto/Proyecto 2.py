@@ -1,7 +1,13 @@
 import pygame,sys,math
 import numpy as np
+import random
+import player1
+from threading import Thread
+import time
 
 pygame.init()
+
+lista_avatar = []
 
 #Ventana de Inicio
 (width, height) = (900, 700)
@@ -95,7 +101,6 @@ def Ayuda():
 
 def Juego():
     running = True
-    board = pygame.image.load("Matriz2.png")
     matriz = np.zeros((9,5))
     print(matriz)
 
@@ -105,7 +110,7 @@ def Juego():
     
     def loopVentana():
         screen.fill((255,0,0))
-        screen.blit(board,(400,0))
+        
 
     while running:
         loopVentana()
@@ -128,6 +133,35 @@ def Juego():
                     unoMatriz(r,c)
                 else:
                     pass
+
+        position_fila = [30, 75, 120, 165, 210]
+        position_columna = [125, 160, 200, 240, 280, 320, 360, 395, 435]
+
+
+        player = player1.Lenador((random.choice(position_fila), 435))
+        def create_avatar():
+           player = player1.Lenador((random.choice(position_fila), 435))
+           lista_avatar.append(player)
+
+           time.sleep(10)
+           create_avatar()
+                               
+        avatar_thread = Thread(target=create_avatar)#, args=[0])
+        avatar_thread.start()
+                               
+        fondo = pygame.image.load('egipto.jpg')
+
+        def create_avatar():
+           player = player1.Lenador((random.choice(position_fila), 435))
+           lista_avatar.append(player)
+                               
+        
+        screen.blit(fondo,(0,0))
+        screen.blit(player.image, player.rect)
+
+        pygame.display.flip()
+        clock.tick(5)
+        
 
 mainMenu()  
     
