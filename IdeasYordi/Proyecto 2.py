@@ -1,16 +1,12 @@
-import pygame,sys,math
-import numpy as np
-import random
-import player1
+import pygame,sys,math,random,time
 from threading import Thread
-import time
+import numpy as np
 
 pygame.init()
 
-lista_avatar = []
-
 #Ventana de Inicio
 (width, height) = (900, 700)
+GRIS = (155,155,155)
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip() #Mostrar ventana
 
@@ -61,7 +57,7 @@ def mainMenu():
 
     # Loop del juego
     def loopVentana():
-        screen.fill((200,200,200))
+        screen.fill(GRIS)
         for elem in listaBotones:
             elem.draw(screen,(0,0,0))
 
@@ -101,36 +97,47 @@ def Ayuda():
 
 def Juego():
     running = True
+    #Imágenes
+    board = pygame.image.load("Matriz2.png")
+    coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
+    #Matriz de juego
     matriz = np.zeros((9,5))
-##    coinImg = pygame.image.load('coin.png')
+    #Posiciones en la matriz
+    position_col = [438, 515, 592, 669, 746]
+    position_raw = [38, 115, 192, 269, 346, 423, 500, 577, 654]
 
-    class Coins():
-        def __init__(self, x, y, width, height, valor):
-            self.valor = valor
-            self.x = x
-            self.y = y
-            self.height = height
-            self.width = width
-            self.hitbox = (x,y,width,height)
 
-        def draw(self,screen):
-            screen.blit(self.img, (self.x,self.y))
-            pygame.draw.rect(screen, (0,0,0), self.hitbox, 2)
-
-    #Asigna un 1 a la posicion de la raiz de entrada
     def unoMatriz(r,c):
         matriz[r][c] = 1
         print(matriz)
     
     def loopVentana():
-        screen.fill((200,200,200))
+        screen.fill(GRIS)
+        screen.blit(board,(400,0))
 
-##    def coin(x,y):
-##        screen.blit(coinImg, (x,y))
-
+    def coin(coinImg,x,y):
+        screen.blit(coinImg, (x,y))
+        pygame.display.update()
+        
+    def generacionCoins():
+        while True: #Cuando se detiene el juego esto se acaba
+            coinX = random.randint(0,4)
+            coinY = random.randint(0,8)
+            if matriz[coinY,coinX] == 0:
+                matriz[coinY][coinX] = 1
+                print(matriz)
+                coin(random.choice(coinImg),position_col[coinX],position_raw[coinY])
+            time.sleep(2)
+                
+        
+    #Hilo de generación de monedas
+    def funcionHiloCoins():
+        hiloCoins = Thread(target=generacionCoins, args = ())
+        hiloCoins.start()
+        
+    funcionHiloCoins()
     while running:
         loopVentana()
-        pygame.display.update()
         #Mantiene la ventana abierta
         for event in pygame.event.get():
             tamCasilla = 77 #Tamaño de cada casilla
@@ -142,47 +149,15 @@ def Juego():
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN: 
                 if pos[0] > 400 and pos[0] < 785:
-                    print(pos)
                     #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/tamCasilla))
                     r = int(math.floor(pos[1]/tamCasilla))
                     unoMatriz(r,c)
                 else:
                     pass
-
-        position_fila = [438, 515, 592, 669, 746]
-        position_columna = [38, 115, 192, 269, 346, 423, 500, 577, 654]
-
-##        coinX = random.choice(position_fila)
-##        coinY = random.choice(position_columna)
-##
-##        coin = (coinX,coinY) 
-
         
-        player = player1.Lenador((random.choice(position_fila), 654))
-        def create_avatar(id):
-           player = player1.Lenador((random.choice(position_fila), 654))
-           lista_avatar.append(id)
-
-           time.sleep(10)
-           create_avatar(id + 1)
-                               
-        avatar_thread = Thread(target=create_avatar, args=[0])
-        avatar_thread.start()
-                               
-        fondo = pygame.image.load('egipto.jpg')
-
-        def create_avatar():
-           player = player1.Lenador((random.choice(position_fila), 654)) 
-           lista_avatar.append(player)
-                               
-        
-        screen.blit(fondo,(0,0))
-        screen.blit(player.image, player.rect)
-
-        pygame.display.flip()
-        clock.tick(5)
-        
+        pygame.display.update()
+    
 
 mainMenu()  
     
