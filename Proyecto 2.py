@@ -126,7 +126,7 @@ def Juego():
                     c = int(math.floor((pos[0] - 400)/tamCasilla))
                     r = int(math.floor(pos[1]/tamCasilla))
                     unoMatriz(r,c)
-##                else:
+                else:
                     pass
 
 mainMenu()  
