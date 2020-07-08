@@ -61,7 +61,7 @@ def mainMenu():
 
     # Loop del juego
     def loopVentana():
-        screen.fill((255,0,0))
+        screen.fill((200,200,200))
         for elem in listaBotones:
             elem.draw(screen,(0,0,0))
 
@@ -109,7 +109,7 @@ def Juego():
         print(matriz)
     
     def loopVentana():
-        screen.fill((255,0,0))
+        screen.fill((200,200,200))
         
 
     while running:
@@ -139,14 +139,14 @@ def Juego():
 
 
         player = player1.Lenador((random.choice(position_fila), 435))
-        def create_avatar():
+        def create_avatar(id):
            player = player1.Lenador((random.choice(position_fila), 435))
-           lista_avatar.append(player)
+           lista_avatar.append(id)
 
            time.sleep(10)
-           create_avatar()
+           create_avatar(id + 1)
                                
-        avatar_thread = Thread(target=create_avatar)#, args=[0])
+        avatar_thread = Thread(target=create_avatar, args=[0])
         avatar_thread.start()
                                
         fondo = pygame.image.load('egipto.jpg')
