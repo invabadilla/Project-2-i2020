@@ -15,6 +15,7 @@ ancho_ventana = 500
 alto_ventana = 500
 screen = pygame.display.set_mode((ancho_ventana, alto_ventana))
 pygame.display.set_caption("Nivel 1")
+
 clock = pygame.time.Clock()
 
 position_fila = [30, 75, 120, 165, 210]

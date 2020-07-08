@@ -1,4 +1,3 @@
-
 import pygame
 position_fila = [30, 75, 120, 165, 210]
 position_columna = [125, 160, 200, 240, 280, 320, 360, 395, 435]
@@ -16,6 +15,19 @@ class Lenador(pygame.sprite.Sprite):
 
         #avatar_thread = Thread(target=lambda: self.update(self.rect
     
+
+    
+    def update(self, direction ):
+        if direction == 'left':
+            self.clip(self.left_states)
+            self.rect.y -= 5
+
+        if direction == 'stand_left':
+            self.clip(self.left_states[0])
+        self.image = self.sheet.subsurface(self.sheet.get_clip())
+
+
+    '''    
     def get_frame(self, frame_set):
         self.frame += 1
         if self.frame > (len(frame_set) - 1):
@@ -28,17 +40,7 @@ class Lenador(pygame.sprite.Sprite):
         else:
             self.sheet.set_clip(pygame.Rect(clipped_rect))
         return clipped_rect
-    
-    def update(self, direction ):
-        if direction == 'left':
-            self.clip(self.left_states)
-            self.rect.y -= 5
 
-        if direction == 'stand_left':
-            self.clip(self.left_states[0])
-        self.image = self.sheet.subsurface(self.sheet.get_clip())
-        
-    
     def handle_event(self, event):
         if event.type == pygame.QUIT:
             game_over = True
@@ -64,4 +66,4 @@ class Lenador(pygame.sprite.Sprite):
                 self.update('stand_up')
             if event.key == pygame.K_DOWN:
                 self.update('stand_down')
-    
+    '''
