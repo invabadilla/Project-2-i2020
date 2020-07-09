@@ -100,11 +100,14 @@ def Juego():
     #Imágenes
     board = pygame.image.load("Matriz2.png")
     coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
+    rookImgs = [pygame.image.load("Sand.png")] # Imagenes de rooks
     #Matriz de juego
     matriz = np.zeros((9,5))
     #Posiciones en la matriz
     position_col = [438, 515, 592, 669, 746]
     position_raw = [38, 115, 192, 269, 346, 423, 500, 577, 654]
+    # Lista de Rooks
+    rooks = []
 
 
     def unoMatriz(r,c):
@@ -114,6 +117,8 @@ def Juego():
     def loopVentana():
         screen.fill(GRIS)
         screen.blit(board,(400,0))
+        for elem in rooks:
+            elem.draw()
 
     def coin(coinImg,x,y):
         screen.blit(coinImg, (x,y))
@@ -129,15 +134,33 @@ def Juego():
                 coin(random.choice(coinImg),position_col[coinX],position_raw[coinY])
             time.sleep(2)
                 
-        
+    class Rook():
+        def __init__(self, r, c, vida, ataque, alcance, velMov, velAta, img):
+            self.x = position_col[r]
+            self.y = position_raw[c] 
+            self.vida = vida
+            self.ataque = ataque
+            self.alcance = alcance
+            self.velMov = velMov
+            self.velAta = velAta
+            self.img = img
+
+            
+        def draw(self):
+            screen.blit(self.img, (self.x,self.y))
+            
     #Hilo de generación de monedas
-    def funcionHiloCoins():
-        hiloCoins = Thread(target=generacionCoins, args = ())
-        hiloCoins.start()
-        
-    funcionHiloCoins()
+##    def funcionHiloCoins():
+##        hiloCoins = Thread(target=generacionCoins, args = ())
+##        hiloCoins.start()
+##        
+##    funcionHiloCoins()
+
+
     while running:
+        
         loopVentana()
+        
         #Mantiene la ventana abierta
         for event in pygame.event.get():
             tamCasilla = 77 #Tamaño de cada casilla
@@ -146,13 +169,16 @@ def Juego():
                 running = False
                 pygame.quit()     
                 sys.exit()
+                
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN: 
-                if pos[0] > 400 and pos[0] < 785:
+                if pos[0] > 400 and pos[0] < 785: #Aquí debería ir la variable si seleccionó una torre
                     #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/tamCasilla))
                     r = int(math.floor(pos[1]/tamCasilla))
-                    unoMatriz(r,c)
+                    matriz[r][c] = 1
+                    rooks.append(Rook(c,r,8,8,3,3,3,rookImgs[0]))
+                    print(matriz)
                 else:
                     pass
         

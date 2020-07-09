@@ -99,23 +99,50 @@ def Ayuda():
         for event in pygame.event.get():
             pass
 
+
+"""------------------JUEGO----------------"""
+
 def Juego():
     running = True
     matriz = np.zeros((9,5))
-##    coinImg = pygame.image.load('coin.png')
+    #Imágenes
+    fondo = pygame.image.load('egipto.jpg')
+    coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
+    rookImgs = [pygame.image.load("Sand.png")] # Imagenes de rooks
+    #Posiciones en el tablero
+    position_columna = [438, 515, 592, 669, 746]
+    position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
+    # Lista de Rooks
+    rooks = []
 
-    class Coins():
-        def __init__(self, x, y, width, height, valor):
-            self.valor = valor
-            self.x = x
-            self.y = y
-            self.height = height
-            self.width = width
-            self.hitbox = (x,y,width,height)
+    class Rook():
+        def __init__(self, r, c, vida, ataque, alcance, velMov, velAta, img):
+            self.x = position_columna[r]
+            self.y = position_fila[c] 
+            self.vida = vida
+            self.ataque = ataque
+            self.alcance = alcance
+            self.velMov = velMov
+            self.velAta = velAta
+            self.img = img
 
-        def draw(self,screen):
+            
+        def draw(self):
             screen.blit(self.img, (self.x,self.y))
-            pygame.draw.rect(screen, (0,0,0), self.hitbox, 2)
+    
+######    class Coins():
+######        def __init__(self, x, y, width, height, valor):
+######            self.valor = valor
+######            self.x = x
+######            self.y = y
+######            self.height = height
+######            self.width = width
+######            self.hitbox = (x,y,width,height)
+######
+######        def draw(self,screen):
+######            screen.blit(self.img, (self.x,self.y))
+######            pygame.draw.rect(screen, (0,0,0), self.hitbox, 2)
+
 
     #Asigna un 1 a la posicion de la raiz de entrada
     def unoMatriz(r,c):
@@ -124,13 +151,14 @@ def Juego():
     
     def loopVentana():
         screen.fill((200,200,200))
+        for elem in rooks:
+            elem.draw()
 
-##    def coin(x,y):
-##        screen.blit(coinImg, (x,y))
 
     while running:
         loopVentana()
         pygame.display.update()
+        
         #Mantiene la ventana abierta
         for event in pygame.event.get():
             tamCasilla = 77 #Tamaño de cada casilla
@@ -139,6 +167,7 @@ def Juego():
                 running = False
                 pygame.quit()     
                 sys.exit()
+                
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN: 
                 if pos[0] > 400 and pos[0] < 785:
@@ -146,42 +175,43 @@ def Juego():
                     #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/tamCasilla))
                     r = int(math.floor(pos[1]/tamCasilla))
-                    unoMatriz(r,c)
+                    if matriz[r][c] == 0:
+                        rooks.append(Rook(c,r,8,8,3,3,3,rookImgs[0]))
+                        unoMatriz(r,c)
                 else:
                     pass
 
-        position_fila = [438, 515, 592, 669, 746]
-        position_columna = [38, 115, 192, 269, 346, 423, 500, 577, 654]
 
-##        coinX = random.choice(position_fila)
-##        coinY = random.choice(position_columna)
+
+####        coinX = random.choice(position_fila)
+####        coinY = random.choice(position_columna)
+####
+####        coin = (coinX,coinY) 
+
+        
+##        player = player1.Lenador((random.choice(position_fila), 654))
+##        def create_avatar(id):
+##           player = player1.Lenador((random.choice(position_fila), 654))
+##           lista_avatar.append(id)
 ##
-##        coin = (coinX,coinY) 
-
-        
-        player = player1.Lenador((random.choice(position_fila), 654))
-        def create_avatar(id):
-           player = player1.Lenador((random.choice(position_fila), 654))
-           lista_avatar.append(id)
-
-           time.sleep(10)
-           create_avatar(id + 1)
+##           time.sleep(10)
+##           create_avatar(id + 1)
                                
-        avatar_thread = Thread(target=create_avatar, args=[0])
-        avatar_thread.start()
-                               
-        fondo = pygame.image.load('egipto.jpg')
-
-        def create_avatar():
-           player = player1.Lenador((random.choice(position_fila), 654)) 
-           lista_avatar.append(player)
+##        avatar_thread = Thread(target=create_avatar, args=[0])
+##        avatar_thread.start()
                                
         
-        screen.blit(fondo,(0,0))
-        screen.blit(player.image, player.rect)
+##
+##        def create_avatar():
+##           player = player1.Lenador((random.choice(position_fila), 654)) 
+##           lista_avatar.append(player)
+##                               
+##        
+##        screen.blit(fondo,(0,0))
+##        screen.blit(player.image, player.rect)
 
         pygame.display.flip()
-        clock.tick(5)
+##        clock.tick(5)
         
 
 mainMenu()  
