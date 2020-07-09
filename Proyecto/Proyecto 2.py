@@ -105,30 +105,73 @@ def Ayuda():
 def Juego():
     running = True
     matriz = np.zeros((9,5))
+    matriz [3][3] = 3
+    print(matriz)
+    global cont #TEmporal, hace que solo se dispare una bala
+    cont = 0
+    TAM_CASILLA = 77
     #Imágenes
     fondo = pygame.image.load('egipto.jpg')
     coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
     rookImgs = [pygame.image.load("Sand.png")] # Imagenes de rooks
+    bulletImgs = [pygame.image.load("Dust.png")]
     #Posiciones en el tablero
     position_columna = [438, 515, 592, 669, 746]
     position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
     # Lista de Rooks
     rooks = []
+    bullets = []
 
     class Rook():
-        def __init__(self, r, c, vida, ataque, alcance, velMov, velAta, img):
-            self.x = position_columna[r]
-            self.y = position_fila[c] 
+        def __init__(self, tipo, r, c, vida, ataque, velAta, img):
+            self.tipo = tipo
+            self.r = r
+            self.c = c
             self.vida = vida
             self.ataque = ataque
-            self.alcance = alcance
-            self.velMov = velMov
             self.velAta = velAta
             self.img = img
 
             
         def draw(self):
-            screen.blit(self.img, (self.x,self.y))
+            screen.blit(self.img, (position_columna[self.r],position_fila[self.c]))
+
+        def atacar(self):
+            global cont 
+            ataque = False
+            matrizTrans = np.transpose(matriz)
+            for elem in matrizTrans[self.r]:
+                if elem ==  3: #if elem es igual a monsturo*
+                    ataque = True
+                    break
+            if ataque == True and cont == 0: #TEmporal, hace que solo se dispare una bala
+                cont += 1
+                bullets.append(Bullet(self.tipo, self.r, self.c, self.ataque))
+            else:
+                pass
+                
+
+    class Bullet():
+        def __init__(self,tipo,r,c,ataque):
+            if tipo == "Sand":
+                self.img = bulletImgs[0]
+            self.r = r
+            self.c = c
+            self.x = position_columna[self.r] +16
+            self.y = position_fila[self.c]
+            self.ataque = ataque
+            self.cambioY = 0.1
+
+        def redraw(self):
+            screen.blit(self.img, (self.x,int(self.y)))
+            self.y += self.cambioY
+            self.c = int(math.floor((self.x - 400)/TAM_CASILLA))
+            self.r = int(math.floor(self.y/TAM_CASILLA))
+            if matriz[self.r][self.c] == 1: #Verificar si hay un monstruo, el 1 es temporal
+                pass
+                #eliminar bala
+
+        
     
 ######    class Coins():
 ######        def __init__(self, x, y, width, height, valor):
@@ -153,6 +196,9 @@ def Juego():
         screen.fill((200,200,200))
         for elem in rooks:
             elem.draw()
+            elem.atacar()
+        for elem in bullets:
+            elem.redraw()
 
 
     while running:
@@ -161,7 +207,6 @@ def Juego():
         
         #Mantiene la ventana abierta
         for event in pygame.event.get():
-            tamCasilla = 77 #Tamaño de cada casilla
             pos = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
                 running = False
@@ -173,10 +218,10 @@ def Juego():
                 if pos[0] > 400 and pos[0] < 785:
                     print(pos)
                     #Valores en la matriz, colum y raw
-                    c = int(math.floor((pos[0] - 400)/tamCasilla))
-                    r = int(math.floor(pos[1]/tamCasilla))
+                    c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
+                    r = int(math.floor(pos[1]/TAM_CASILLA))
                     if matriz[r][c] == 0:
-                        rooks.append(Rook(c,r,8,8,3,3,3,rookImgs[0]))
+                        rooks.append(Rook("Sand",c,r,8,8,3,rookImgs[0]))
                         unoMatriz(r,c)
                 else:
                     pass
