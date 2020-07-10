@@ -1,13 +1,19 @@
 import pygame,sys,math
 import numpy as np
 import random
-import player1
-from threading import Thread
+
 import time
 
 pygame.init()
 
 #Variables globales
+ancho = 900
+alto = 700
+fila = [145, 180, 220, 260, 300, 340, 375, 415, 435]
+columna = [50, 95, 145, 190, 235]
+lenadorwalk = False
+len_walk = 1
+
 #Colores
 MORADO_CLARO = (184,112,204,80)
 MORADO_OSCURO = (131,60,150,59)
@@ -123,31 +129,49 @@ def Ayuda():
 """------------------JUEGO----------------"""
 
 class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
-
-    def __init__(self):
+    global position_fila, position_columna
+    def __init__(self,x,y):
         pygame.sprite.Sprite.__init__(self)
+        self.x = x
+        self.y = y
         self.image = pygame.image.load('Images/le_c1.png')
         self.walk = [pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'), pygame.image.load('Images/le_c3.png'),
                      pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'), pygame.image.load('Images/le_c6.png'),
                      pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'), pygame.image.load('Images/le_c9.png'),
                      pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'), pygame.image.load('Images/le_c12.png'),
                      pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
+        self.posImagen = 0
 
         self.rect = self.image.get_rect()
-        self.rect.centerx = 600
-        self.rect.centery = 577
+        self.rect.centerx = position_columna[self.x]
+        self.rect.centery = position_fila[self.y]
 
         self.list_attack = []
         self.life = True
 
-        self.speed = 5
+        self.speed = 1
 
     def Move(self):
+        pass
+        '''
         if self.life:
             if self.rect.left <= 400:
                 self.rect.left = 400
             elif self.rect.right > 700:
-                self.rect.right = 700
+                self.rect.right = 700'''
+    def avance(self, y, screen):
+        n = 0
+        while self.rect.centery > position_fila[y]:
+            self.rect.centery -= self.speed
+            print('n ',n)
+            print('len ', len(self.walk)-1)
+            if n < (len(self.walk)-1):
+                n += 1
+            else:
+                print('entre')
+                n = 0
+            screen.blit(self.walk[n], self.rect)
+        self.y  -= 1
 
     def Attack(self):
         pass
@@ -155,6 +179,9 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
     def Draw(self, superficie):
         #if self.walkCount
         superficie.blit(self.image, self.rect)
+
+position_columna = [438, 515, 592, 669, 746]
+position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
 
 def Juego():
 ##    tiempoInicio = pygame.time.get_ticks()
@@ -184,14 +211,13 @@ def Juego():
     bulletImgs = [pygame.image.load("Dust.png"), pygame.image.load("BulletRock.png"), pygame.image.load("Fireball.png"), pygame.image.load("Waterdrop.png")]
     muteImg = pygame.image.load('Mute.png')
     #Posiciones en el tablero
-    position_columna = [438, 515, 592, 669, 746]
-    position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
+
     # Lista de Rooks
     rooks = []
     #Instancias de botones
     botonSand = Button((0,255,0),55,200,100,70,rookImgs[0],None)
     botonRock = Button((0,255,0),200,200,100,70,rookImgs[1],None)
-    botonFire = Button((0,255,0),55,300,100,70,rookImgs[2],None)    
+    botonFire = Button((0,255,0),55,300,100,70,rookImgs[2],None)
     botonWater = Button((0,255,0),200,300,100,70,rookImgs[3],None)
     botonQuit = Button((0,255,0),100,600,150,70,None,"Quit")
     botonMute = Button((0,255,0),60,500,100,70,muteImg,None)
@@ -228,7 +254,7 @@ def Juego():
                 self.cooldown = 5000
             self.cooldown = 5000
             monedas -= self.coste
-            
+
 
 
         def draw(self):
@@ -284,10 +310,10 @@ def Juego():
 
         def draw(self):
             screen.blit(self.img,(int(self.x), int(self.y) ) )
-            
+
         def trayectoria(self):
             self.y += self.cambioY
-            
+
 ##        def redraw(self):
 ##            pos = [self.x,self.y]
 ##            screen.blit(self.img, (self.x,int(self.y)))
@@ -306,6 +332,8 @@ def Juego():
 
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
+        global lenadorwalk, len_walk
+        screen.blit(tablero, (370, 0))
 
         screen.fill(GRIS)
         screen.blit(tablero, (373, -17))
@@ -318,6 +346,20 @@ def Juego():
         for rook in rooks:
             now = pygame.time.get_ticks()
             rook.draw()
+            rook.atacar()
+        for bullet in bullets:
+            bullet.redraw()
+        reloj = pygame.time.get_ticks()//1000
+        print(reloj)
+        if reloj % 4 == 0:
+            lenadorwalk = True
+        else:
+            lenadorwalk = False
+            len_walk = 1
+
+
+    screen.fill((200, 200, 200))
+    avatar = Lenador(1,8)  # llamar al lenador
             if now - rook.last_fire >= rook.cooldown:
                 rook.last_fire = now
                 rook.disparar()
@@ -328,20 +370,34 @@ def Juego():
                     if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
                         rook.listaDisparos.remove(proyectil)
 
-                    
-                
-    
+
+
+
     avatar = Lenador()  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
+
+    clock = pygame.time.Clock()
     clock = pygame.time.Clock()
 
 
     while running:
+        global lenadorwalk, len_walk, reloj
         clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
         avatar.Move()
         loopVentana()
 
+        #Mantiene la ventana abierta
+        if inGame:
+            if lenadorwalk and len_walk != 0:
+                aux_y = avatar.y - 1
+                avatar.avance(aux_y, screen)
+
+
+                len_walk = 0
+            if 8 % 5 == 0:
+                # screen.blit(tablero, (0, 0))
+                avatar.rect.top -= avatar.speed
         for event in pygame.event.get():
             pos = pygame.mouse.get_pos()
 
@@ -349,7 +405,7 @@ def Juego():
                 running = False
                 pygame.quit()
                 sys.exit()
-                
+
 ##            if event.type == eventoDisparo:
 ##                for rook in rooks:
 ##                    rook.disparar()
@@ -360,6 +416,8 @@ def Juego():
                 if keys[pygame.K_UP]:
                     #screen.blit(tablero, (0, 0))
                     avatar.rect.top -= avatar.speed
+
+
 
 
             #Asignar valor a la matriz se le hace click
@@ -387,7 +445,7 @@ def Juego():
                         elif tipo == "Water" and monedas >= 150:
                             rooks.append(Rook("Water", c, r, 16, 150, 8, None, rookImgs[3]))
                             unoMatriz(r,c)
-    
+
                 elif botonSand.isOver(pos):
                     tipo = "Sand"
                 elif botonRock.isOver(pos):
@@ -407,10 +465,11 @@ def Juego():
                         boton.color = (0,0,255)
                     else:
                         boton.color = (0,255,0)
+        clock.tick(90)
 
-                        
-                        
-        
+
+
+
         pygame.display.update()
 
 ####        coinX = random.choice(position_fila)
@@ -441,7 +500,7 @@ def Juego():
 ##        screen.blit(player.image, player.rect)
 Juego()
         #pygame.display.flip()
-##        clock.tick(5)
+
         
 
 mainMenu()  
