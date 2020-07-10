@@ -121,8 +121,8 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
                      pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
 
         self.rect = self.image.get_rect()
-        self.rect.centerx = 600
-        self.rect.centery = 577
+        self.rect.centerx = 706
+        self.rect.centery = 147
 
         self.list_attack = []
         self.life = True
