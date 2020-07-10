@@ -8,11 +8,12 @@ import time
 pygame.init()
 
 #Variables globales
-ancho = 900
-alto = 700
-fila = [145, 180, 220, 260, 300, 340, 375, 415, 435]
-columna = [50, 95, 145, 190, 235]
-
+#Colores
+MORADO_CLARO = (184,112,204,80)
+MORADO_OSCURO = (131,60,150,59)
+GRIS = (214,202,252,99)
+AMARILLO = (253,218,76,99)
+CAFE = (201,184,141,79)
 tablero = pygame.image.load('lawn2.png')
 lista_avatar = []
 
@@ -54,8 +55,8 @@ class Button():
         
 
         if self.text != '':
-            font = pygame.font.SysFont('comicsans', 45)
-            text = font.render(self.text, 1, (0,0,0))
+            font = pygame.font.SysFont("SeriesOrbit", 35)
+            text = font.render(self.text, 1, MORADO_OSCURO)
             screen.blit(text, (self.x + (self.width//2 - text.get_width()//2), self.y + (self.height//2 - text.get_height()//2)))
 
         #Verifica si la posición del mouse está sobre el botón
@@ -69,17 +70,17 @@ class Button():
 def mainMenu():
 
     #Instancias de botones
-    botonPlay = Button((0,255,0),155,100,100,70,None,"Play")
-    botonSalon = Button((0,255,0),80,200,260,70,None,"Salón de la fama")
-    botonConfig = Button((0,255,0),100,300,220,70,None,"Configuración")
-    botonAyuda = Button((0,255,0),160,400,110,70,None,"Ayuda")
-    botonCreditos = Button((0,255,0),130,500,150,70,None,"Créditos")
-    botonExit = Button((0,255,0),170,600,80,70,None,"Exit")
+    botonPlay = Button(MORADO_CLARO,155,100,100,70,None,"Play")
+    botonSalon = Button(MORADO_CLARO,80,200,260,70,None,"Salon de la fama")
+    botonConfig = Button(MORADO_CLARO,100,300,220,70,None,"Configuracion")
+    botonAyuda = Button(MORADO_CLARO,160,400,110,70,None,"Ayuda")
+    botonCreditos = Button(MORADO_CLARO,130,500,150,70,None,"Creditos")
+    botonExit = Button(MORADO_CLARO,170,600,80,70,None,"Exit")
     listaBotones = [botonPlay,botonSalon,botonConfig,botonAyuda,botonCreditos,botonExit]
 
     # Loop del juego
     def loopVentana():
-        screen.fill((200,200,200))
+        screen.fill(GRIS)
         for boton in listaBotones:
             boton.draw(screen,(0,0,0))
 
@@ -104,9 +105,9 @@ def mainMenu():
             if event.type == pygame.MOUSEMOTION:
                 for boton in listaBotones:
                     if boton.isOver(pos):
-                        boton.color = (0,0,255)
+                        boton.color = CAFE
                     else:
-                        boton.color = (0,255,0)
+                        boton.color = AMARILLO
 
 def Ayuda():
     running = True
@@ -160,10 +161,19 @@ def Juego():
     matriz[3][3] = 3 # número de prueba
     print(matriz) # pa probar
     TAM_CASILLA = 77 #Tamaño de cada casilla
+    global monedas
+    monedas = 500 #Monedas del jugador
+    jugador = "Engret y LLordi" #Provicional
     tipo = 0 #Variable que determina que rook colocar
     global cont # pa pruebas
     cont = 0
-    
+
+    #Texto de interfaz
+    font = pygame.font.SysFont("Neuropol X Rg", 30)
+    monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
+    jugadorText = font.render("Jugador: "+str(jugador), 1, MORADO_OSCURO)
+    tiempoText = font.render("Tiempo de juego: ", 1, MORADO_OSCURO)
+    monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
     #Imágenes
     fondo = pygame.image.load('lawn1.png')
     coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
@@ -176,11 +186,12 @@ def Juego():
     rooks = []
     bullets = []
     #Instancias de botones
-    botonSand = Button((0,255,0),155,100,100,70,rookImgs[0],None)
-    botonRock = Button((0,255,0),155,200,100,70,rookImgs[1],None)
-    botonFire = Button((0,255,0),155,300,100,70,rookImgs[2],None)    
-    botonWater = Button((0,255,0),155,400,100,70,rookImgs[3],None)
-    listaBotones = [botonSand, botonRock, botonFire, botonWater]
+    botonSand = Button((0,255,0),55,200,100,70,rookImgs[0],None)
+    botonRock = Button((0,255,0),200,200,100,70,rookImgs[1],None)
+    botonFire = Button((0,255,0),55,300,100,70,rookImgs[2],None)    
+    botonWater = Button((0,255,0),200,300,100,70,rookImgs[3],None)
+    botonQuit = Button((0,255,0),100,600,150,70,None,"Quit")
+    listaBotones = [botonSand, botonRock, botonFire, botonWater, botonQuit]
 
     """
     Métodos:
@@ -189,6 +200,7 @@ def Juego():
     """
     class Rook():
         def __init__(self, tipo, r, c, vida, coste, ptsAtaque, velAta, img):
+            global monedas
             self.tipo = tipo
             self.r = r
             self.c = c
@@ -197,6 +209,8 @@ def Juego():
             self.ptsAtaque = ptsAtaque
             self.velAta = velAta
             self.img = img
+            monedas -= self.coste
+            
 
 
         def draw(self):
@@ -271,8 +285,13 @@ def Juego():
 
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
-        screen.blit(tablero, (400, 15))
+        monedasText.
+        screen.blit(tablero, (373, -17))
         avatar.Draw(screen)
+        screen.blit(monedasText,(5,10))
+        screen.blit(jugadorText,(5,40))
+        screen.blit(tiempoText,(0,110))
+        print(monedas)
         for boton in listaBotones:
             boton.draw(screen, (0,0,0))
         for rook in rooks:
@@ -282,7 +301,7 @@ def Juego():
             bullet.redraw()
         
 
-    screen.fill((200, 200, 200))
+    screen.fill(GRIS)
     avatar = Lenador()  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
 
@@ -336,6 +355,9 @@ def Juego():
                     tipo = "Fire"
                 elif botonWater.isOver(pos):
                     tipo = "Water"
+                elif botonQuit.isOver(pos):
+                    running = False
+                    mainMenu()
                 else:
                     pass
             if event.type == pygame.MOUSEMOTION:

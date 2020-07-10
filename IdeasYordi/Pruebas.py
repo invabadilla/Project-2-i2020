@@ -29,10 +29,10 @@ class Enemy:
         self.y = y
         self.width = 0
         self.height = 0
-        self.animation.count = 0
         self.health = []
         self.path = []
         self.img = None
+
 
     def draw(self,win):
 
@@ -56,13 +56,22 @@ class Enemy:
 
         return False
     def move(self):
+        pass
 
         
 
-    def hit(self):
-        self.health -= 1
-        i self.health <= 0:
-            return True
+
+
+enemy1 = Enemy(23,54,30,30)
+enemy2 = Enemy(23,54,30,30)
+
+enemigos = [enemy1, enemy2]
+
+
+print(len(enemigos))
+del enemy1
+print(len(enemigos))
+print(enemy1)
 
 
 
@@ -109,6 +118,4 @@ class Enemy:
 
 
 
-
-    def collition(self, x, y):
-        
+            
