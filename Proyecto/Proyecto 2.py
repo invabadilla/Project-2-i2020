@@ -28,21 +28,30 @@ pygame.display.set_icon(icon)
 
 #Clase botones
 class Button():
-    def __init__(self, color, x,y,width,height, text=''):
+    def __init__(self, color, x,y,width,height, img ,text=''):
         self.color = color
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+        self.img = img
         self.text = text
+        
+        
 
         #Dibuja el botón en la pantalla
     def draw(self,screen,outline=None):
         #Crea outline
         if outline:
             pygame.draw.rect(screen, outline, (self.x-2,self.y-2,self.width+4,self.height+4),0)
-
+            
         pygame.draw.rect(screen, self.color, (self.x,self.y,self.width,self.height),0)
+
+        #Despliega imagen en caso de tenerla
+        if self.img:
+            screen.blit(self.img, (self.x +18,self.y +5))
+        
+        
 
         if self.text != '':
             font = pygame.font.SysFont('comicsans', 45)
@@ -55,22 +64,24 @@ class Button():
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
 
-#Instancias de botones
-botonPlay = Button((0,255,0),155,100,100,70,"Play")
-botonSalon = Button((0,255,0),80,200,260,70,"Salón de la fama")
-botonConfig = Button((0,255,0),100,300,220,70,"Configuración")
-botonAyuda = Button((0,255,0),160,400,110,70,"Ayuda")
-botonCreditos = Button((0,255,0),130,500,150,70,"Créditos")
-botonExit = Button((0,255,0),170,600,80,70,"Exit")
-listaBotones = [botonPlay,botonSalon,botonConfig,botonAyuda,botonCreditos,botonExit]
+
 
 def mainMenu():
+
+    #Instancias de botones
+    botonPlay = Button((0,255,0),155,100,100,70,None,"Play")
+    botonSalon = Button((0,255,0),80,200,260,70,None,"Salón de la fama")
+    botonConfig = Button((0,255,0),100,300,220,70,None,"Configuración")
+    botonAyuda = Button((0,255,0),160,400,110,70,None,"Ayuda")
+    botonCreditos = Button((0,255,0),130,500,150,70,None,"Créditos")
+    botonExit = Button((0,255,0),170,600,80,70,None,"Exit")
+    listaBotones = [botonPlay,botonSalon,botonConfig,botonAyuda,botonCreditos,botonExit]
 
     # Loop del juego
     def loopVentana():
         screen.fill((200,200,200))
-        for elem in listaBotones:
-            elem.draw(screen,(0,0,0))
+        for boton in listaBotones:
+            boton.draw(screen,(0,0,0))
 
     running = True
     while running:
@@ -91,11 +102,11 @@ def mainMenu():
                     Juego()
 
             if event.type == pygame.MOUSEMOTION:
-                for elem in listaBotones:
-                    if elem.isOver(pos):
-                        elem.color = (0,0,255)
+                for boton in listaBotones:
+                    if boton.isOver(pos):
+                        boton.color = (0,0,255)
                     else:
-                        elem.color = (0,255,0)
+                        boton.color = (0,255,0)
 
 def Ayuda():
     running = True
@@ -146,32 +157,44 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
 def Juego():
     running = True
     matriz = np.zeros((9,5))
-    matriz[3][3] = 3
-    print(matriz)
+    matriz[3][3] = 3 # número de prueba
+    print(matriz) # pa probar
     TAM_CASILLA = 77 #Tamaño de cada casilla
-    global cont
+    tipo = 0 #Variable que determina que rook colocar
+    global cont # pa pruebas
     cont = 0
+    
     #Imágenes
     fondo = pygame.image.load('lawn1.png')
     coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
-    rookImgs = [pygame.image.load("Sand.png")] # Imagenes de rooks
-    bulletImgs = [pygame.image.load("Dust.png")]
+    rookImgs = [pygame.image.load("Sand.png"),pygame.image.load("Rock.png"), pygame.image.load("Fire.png"), pygame.image.load("Water.png")] 
+    bulletImgs = [pygame.image.load("Dust.png"), pygame.image.load("BulletRock.png"), pygame.image.load("Fireball.png"), pygame.image.load("Waterdrop.png")]
     #Posiciones en el tablero
     position_columna = [438, 515, 592, 669, 746]
     position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
     # Lista de Rooks
     rooks = []
     bullets = []
+    #Instancias de botones
+    botonSand = Button((0,255,0),155,100,100,70,rookImgs[0],None)
+    botonRock = Button((0,255,0),155,200,100,70,rookImgs[1],None)
+    botonFire = Button((0,255,0),155,300,100,70,rookImgs[2],None)    
+    botonWater = Button((0,255,0),155,400,100,70,rookImgs[3],None)
+    listaBotones = [botonSand, botonRock, botonFire, botonWater]
 
+    """
+    Métodos:
+    draw: despliega la imagen del rook
+    atacar: determina si hay un enemigo en la columna
+    """
     class Rook():
-        def __init__(self, tipo, r, c, vida, ptsAtaque, alcance, velMov, velAta, img):
-            self.tipo = "Sand"
+        def __init__(self, tipo, r, c, vida, coste, ptsAtaque, velAta, img):
+            self.tipo = tipo
             self.r = r
             self.c = c
             self.vida = vida
+            self.coste = coste
             self.ptsAtaque = ptsAtaque
-            self.alcance = alcance
-            self.velMov = velMov
             self.velAta = velAta
             self.img = img
 
@@ -182,14 +205,14 @@ def Juego():
         def atacar(self):
             global cont 
             ataque = False
-            matrizTrans = np.transpose(matriz)
+            matrizTrans = np.transpose(matriz) # Transposición de la matriz para que sea más facil verificar la columna
             for elem in matrizTrans[self.r]:
                 if elem ==  3: #if elem es igual a monsturo*
                     ataque = True
                     break
             if ataque == True and cont == 0: #TEmporal, hace que solo se dispare una bala
                 cont += 1
-                bullets.append(Bullet(self.tipo, self.r, self.c, self.ptsAtaque))
+                bullets.append(Bullet(self.tipo, self.r, self.c, self.ptsAtaque)) #Crea la bala
             else:
                 pass
 
@@ -206,23 +229,37 @@ def Juego():
 ######            screen.blit(self.img, (self.x,self.y))
 ######            pygame.draw.rect(screen, (0,0,0), self.hitbox, 2)
 
+    """
+    Métodos:
+    redraw: animación y movimiento de la bala
+    """
     class Bullet():
         def __init__(self,tipo,r,c,ataque):
             if tipo == "Sand":
                 self.img = bulletImgs[0]
+            elif tipo == "Rock":
+                self.img = bulletImgs[1]
+            elif tipo == "Fire":
+                self.img = bulletImgs[2]
+            elif tipo == "Water":
+                self.img = bulletImgs[3]
+            
             self.r = r
             self.c = c
             self.x = position_columna[self.r] -15
             self.y = position_fila[self.c]
             self.ataque = ataque
-            self.cambioY = 0.1
+            self.cambioY = 0.5
             self.estado = 1
 
         def redraw(self):
+            pos = [self.x,self.y]
             screen.blit(self.img, (self.x,int(self.y)))
             self.y += self.cambioY
-            self.c = int(math.floor((self.x - 400)/TAM_CASILLA))
-            self.r = int(math.floor(self.y/TAM_CASILLA))
+##            self.c = int(math.floor((self.x - 400)/TAM_CASILLA))
+##            self.r = int(math.floor(self.y/TAM_CASILLA))
+            c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
+            r = int(math.floor(pos[1]/TAM_CASILLA))
             if matriz[self.r][self.c] == 1: #Verificar si hay un monstruo, el 1 es temporal
                 pass
                 #eliminar bala
@@ -232,11 +269,22 @@ def Juego():
         matriz[r][c] = 1
         print(matriz)
 
+    #Mantiene los botones y objetos en pantalla
+    def loopVentana():
+        screen.blit(tablero, (400, 15))
+        avatar.Draw(screen)
+        for boton in listaBotones:
+            boton.draw(screen, (0,0,0))
+        for rook in rooks:
+            rook.draw()
+            rook.atacar()
+        for bullet in bullets:
+            bullet.redraw()
+        
+
     screen.fill((200, 200, 200))
     avatar = Lenador()  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
-
-
 
 
 
@@ -271,18 +319,40 @@ def Juego():
                     c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
                     r = int(math.floor(pos[1]/TAM_CASILLA))
                     if matriz[r][c] == 0:
-                        rooks.append(Rook("Sand", c, r, 8, 8, 3, 3, 3, rookImgs[0]))
-                        unoMatriz(r,c)
+                        if tipo == "Sand":
+                            rooks.append(Rook("Sand", c, r, 7, 50, 2, None, rookImgs[0]))
+                            unoMatriz(r,c)
+                        elif tipo == "Rock":
+                            rooks.append(Rook("Rock", c, r, 14, 100, 4, None, rookImgs[1]))
+                        elif tipo == "Fire":
+                            rooks.append(Rook("Fire", c, r, 16, 150, 8, None, rookImgs[2]))
+                        elif tipo == "Water":
+                            rooks.append(Rook("Water", c, r, 16, 150, 8, None, rookImgs[3]))
+                elif botonSand.isOver(pos):
+                    tipo = "Sand"
+                elif botonRock.isOver(pos):
+                    tipo = "Rock"
+                elif botonFire.isOver(pos):
+                    tipo = "Fire"
+                elif botonWater.isOver(pos):
+                    tipo = "Water"
                 else:
                     pass
+            if event.type == pygame.MOUSEMOTION:
+                for boton in listaBotones:
+                    if boton.isOver(pos):
+                        boton.color = (0,0,255)
+                    else:
+                        boton.color = (0,255,0)
 
-        screen.blit(tablero, (400, 15))
-        avatar.Draw(screen)
-        for elem in rooks:
-            elem.draw()
-            elem.atacar()
-        for elem in bullets:
-            elem.redraw()
+##        screen.blit(tablero, (400, 15))
+##        avatar.Draw(screen)
+##        for elem in rooks:
+##            elem.draw()
+##            elem.atacar()
+##        for elem in bullets:
+##            elem.redraw()
+        loopVentana()
         pygame.display.update()
 
 ####        coinX = random.choice(position_fila)
