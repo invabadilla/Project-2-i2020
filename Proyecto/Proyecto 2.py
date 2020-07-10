@@ -285,7 +285,6 @@ def Juego():
 
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
-        monedasText.
         screen.blit(tablero, (373, -17))
         avatar.Draw(screen)
         screen.blit(monedasText,(5,10))
