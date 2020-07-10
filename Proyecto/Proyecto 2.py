@@ -7,13 +7,6 @@ import time
 
 pygame.init()
 
-#Variables globales
-ancho = 900
-alto = 700
-fila = [145, 180, 220, 260, 300, 340, 375, 415, 435]
-columna = [50, 95, 145, 190, 235]
-
-tablero = pygame.image.load('lawn2.png')
 lista_avatar = []
 
 #Ventana de Inicio
@@ -109,67 +102,77 @@ def Ayuda():
 
 """------------------JUEGO----------------"""
 
-class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
-
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('Images/le_c1.png')
-        self.walk = [pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'), pygame.image.load('Images/le_c3.png'),
-                     pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'), pygame.image.load('Images/le_c6.png'),
-                     pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'), pygame.image.load('Images/le_c9.png'),
-                     pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'), pygame.image.load('Images/le_c12.png'),
-                     pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
-
-        self.rect = self.image.get_rect()
-        self.rect.centerx = 706
-        self.rect.centery = 147
-
-        self.list_attack = []
-        self.life = True
-
-        self.speed = 5
-
-    def Move(self):
-        if self.life:
-            if self.rect.left <= 400:
-                self.rect.left = 400
-            elif self.rect.right > 700:
-                self.rect.right = 700
-
-    def Attack(self):
-        pass
-
-    def Draw(self, superficie):
-        #if self.walkCount
-        superficie.blit(self.image, self.rect)
-
 def Juego():
     running = True
     matriz = np.zeros((9,5))
+    matriz [3][3] = 3
+    print(matriz)
+    global cont #TEmporal, hace que solo se dispare una bala
+    cont = 0
+    TAM_CASILLA = 77
     #Imágenes
-    fondo = pygame.image.load('lawn1.png')
+    fondo = pygame.image.load('egipto.jpg')
     coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
     rookImgs = [pygame.image.load("Sand.png")] # Imagenes de rooks
+    bulletImgs = [pygame.image.load("Dust.png")]
     #Posiciones en el tablero
     position_columna = [438, 515, 592, 669, 746]
     position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
     # Lista de Rooks
     rooks = []
+    bullets = []
 
     class Rook():
-        def __init__(self, r, c, vida, ataque, alcance, velMov, velAta, img):
-            self.x = position_columna[r]
-            self.y = position_fila[c] 
+        def __init__(self, tipo, r, c, vida, ptsAtaque, velAta, img):
+            self.tipo = tipo
+            self.r = r
+            self.c = c
             self.vida = vida
-            self.ataque = ataque
-            self.alcance = alcance
-            self.velMov = velMov
+            self.ptsAtaque = ptsAtaque
             self.velAta = velAta
             self.img = img
 
             
         def draw(self):
-            screen.blit(self.img, (self.x,self.y))
+            screen.blit(self.img, (position_columna[self.r]-30,position_fila[self.c]-30))
+
+        def atacar(self):
+            global cont 
+            ataque = False
+            matrizTrans = np.transpose(matriz)
+            for elem in matrizTrans[self.r]:
+                if elem ==  3: #if elem es igual a monsturo*
+                    ataque = True
+                    break
+            if ataque == True and cont == 0: #TEmporal, hace que solo se dispare una bala
+                cont += 1
+                bullets.append(Bullet(self.tipo, self.r, self.c, self.ptsAtaque))
+            else:
+                pass
+                
+
+    class Bullet():
+        def __init__(self,tipo,r,c,ataque):
+            if tipo == "Sand":
+                self.img = bulletImgs[0]
+            self.r = r
+            self.c = c
+            self.x = position_columna[self.r] +16
+            self.y = position_fila[self.c]
+            self.ataque = ataque
+            self.cambioY = 0.1
+            self.estado = 1
+
+        def redraw(self):
+            screen.blit(self.img, (self.x,int(self.y)))
+            self.y += self.cambioY
+            self.c = int(math.floor((self.x - 400)/TAM_CASILLA))
+            self.r = int(math.floor(self.y/TAM_CASILLA))
+            if matriz[self.r][self.c] == 1: #Verificar si hay un monstruo, el 1 es temporal
+                pass
+                #eliminar bala
+
+        
     
 ######    class Coins():
 ######        def __init__(self, x, y, width, height, valor):
@@ -189,63 +192,42 @@ def Juego():
     def unoMatriz(r,c):
         matriz[r][c] = 1
         print(matriz)
-
-    screen.fill((200, 200, 200))
-    avatar = Lenador()  # llamar al lenador
-    inGame = True  # si aun el jugador sigue con vida
-
+    
     def loopVentana():
         screen.fill((200,200,200))
-
+        for elem in rooks:
+            elem.draw()
+            elem.atacar()
+        for elem in bullets:
+            elem.redraw()
 
 
     while running:
-        #loopVentana()
-        for elem in rooks:
-            elem.draw()
-
+        loopVentana()
         pygame.display.update()
-
-        keys = pygame.key.get_pressed() #si una tecla es presionada
-        avatar.Move()
-
+        
         #Mantiene la ventana abierta
         for event in pygame.event.get():
-            tamCasilla = 77 #Tamaño de cada casilla
             pos = pygame.mouse.get_pos()
-
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()     
                 sys.exit()
-
-            if inGame:
-                if keys[pygame.K_DOWN]:
-                    #screen.blit(tablero, (0, 0))
-                    avatar.rect.bottom += avatar.speed
-                if keys[pygame.K_UP]:
-                    #screen.blit(tablero, (0, 0))
-                    avatar.rect.top -= avatar.speed
-
-
+                
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN: 
                 if pos[0] > 400 and pos[0] < 785:
                     print(pos)
                     #Valores en la matriz, colum y raw
-                    c = int(math.floor((pos[0] - 400)/tamCasilla))
-                    r = int(math.floor(pos[1]/tamCasilla))
+                    c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
+                    r = int(math.floor(pos[1]/TAM_CASILLA))
                     if matriz[r][c] == 0:
-                        rooks.append(Rook(c,r,8,8,3,3,3,rookImgs[0]))
+                        rooks.append(Rook("Sand",c,r,8,8,3,rookImgs[0]))
                         unoMatriz(r,c)
                 else:
                     pass
 
-        screen.blit(tablero, (400, 15))
-        avatar.Draw(screen)
-        for elem in rooks:
-            elem.draw()
-        pygame.display.update()
+
 
 ####        coinX = random.choice(position_fila)
 ####        coinY = random.choice(position_columna)
@@ -273,8 +255,8 @@ def Juego():
 ##        
 ##        screen.blit(fondo,(0,0))
 ##        screen.blit(player.image, player.rect)
-Juego()
-        #pygame.display.flip()
+
+        pygame.display.flip()
 ##        clock.tick(5)
         
 
