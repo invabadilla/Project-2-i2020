@@ -123,18 +123,18 @@ def Juego():
     bullets = []
 
     class Rook():
-        def __init__(self, tipo, r, c, vida, ataque, velAta, img):
+        def __init__(self, tipo, r, c, vida, ptsAtaque, velAta, img):
             self.tipo = tipo
             self.r = r
             self.c = c
             self.vida = vida
-            self.ataque = ataque
+            self.ptsAtaque = ptsAtaque
             self.velAta = velAta
             self.img = img
 
             
         def draw(self):
-            screen.blit(self.img, (position_columna[self.r],position_fila[self.c]))
+            screen.blit(self.img, (position_columna[self.r]-30,position_fila[self.c]-30))
 
         def atacar(self):
             global cont 
@@ -146,7 +146,7 @@ def Juego():
                     break
             if ataque == True and cont == 0: #TEmporal, hace que solo se dispare una bala
                 cont += 1
-                bullets.append(Bullet(self.tipo, self.r, self.c, self.ataque))
+                bullets.append(Bullet(self.tipo, self.r, self.c, self.ptsAtaque))
             else:
                 pass
                 
@@ -161,6 +161,7 @@ def Juego():
             self.y = position_fila[self.c]
             self.ataque = ataque
             self.cambioY = 0.1
+            self.estado = 1
 
         def redraw(self):
             screen.blit(self.img, (self.x,int(self.y)))
