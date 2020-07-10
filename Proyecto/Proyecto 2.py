@@ -141,6 +141,7 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
                      pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'), pygame.image.load('Images/le_c12.png'),
                      pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
         self.posImagen = 0
+        self.imagenLenador = self.walk[self.posImagen]
 
         self.rect = self.image.get_rect()
         self.rect.centerx = position_columna[self.x]
