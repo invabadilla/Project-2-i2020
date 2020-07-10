@@ -100,6 +100,7 @@ def mainMenu():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if botonPlay.isOver(pos):
+                    running = False
                     Juego()
 
             if event.type == pygame.MOUSEMOTION:
@@ -156,9 +157,12 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
         superficie.blit(self.image, self.rect)
 
 def Juego():
+##    tiempoInicio = pygame.time.get_ticks()
+##    global auxTiempo
+##    auxTiempo = 1
     running = True
     matriz = np.zeros((9,5))
-    matriz[3][3] = 3 # número de prueba
+    matriz[3][3] = 2 # número de prueba
     print(matriz) # pa probar
     TAM_CASILLA = 77 #Tamaño de cada casilla
     global monedas
@@ -172,26 +176,28 @@ def Juego():
     font = pygame.font.SysFont("Neuropol X Rg", 30)
     monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
     jugadorText = font.render("Jugador: "+str(jugador), 1, MORADO_OSCURO)
-    tiempoText = font.render("Tiempo de juego: ", 1, MORADO_OSCURO)
-    monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
     #Imágenes
     fondo = pygame.image.load('lawn1.png')
     coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
     rookImgs = [pygame.image.load("Sand.png"),pygame.image.load("Rock.png"), pygame.image.load("Fire.png"), pygame.image.load("Water.png")] 
     bulletImgs = [pygame.image.load("Dust.png"), pygame.image.load("BulletRock.png"), pygame.image.load("Fireball.png"), pygame.image.load("Waterdrop.png")]
+    muteImg = pygame.image.load('Mute.png')
     #Posiciones en el tablero
     position_columna = [438, 515, 592, 669, 746]
     position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
     # Lista de Rooks
     rooks = []
-    bullets = []
     #Instancias de botones
     botonSand = Button((0,255,0),55,200,100,70,rookImgs[0],None)
     botonRock = Button((0,255,0),200,200,100,70,rookImgs[1],None)
     botonFire = Button((0,255,0),55,300,100,70,rookImgs[2],None)    
     botonWater = Button((0,255,0),200,300,100,70,rookImgs[3],None)
     botonQuit = Button((0,255,0),100,600,150,70,None,"Quit")
-    listaBotones = [botonSand, botonRock, botonFire, botonWater, botonQuit]
+    botonMute = Button((0,255,0),60,500,100,70,muteImg,None)
+    listaBotones = [botonSand, botonRock, botonFire, botonWater, botonQuit, botonMute]
+    #Eventos con tiempo
+    eventoDisparo = pygame.USEREVENT + 1
+    pygame.time.set_timer(eventoDisparo, 4000)
 
     """
     Métodos:
@@ -209,6 +215,7 @@ def Juego():
             self.ptsAtaque = ptsAtaque
             self.velAta = velAta
             self.img = img
+            self.listaDisparos = []
             monedas -= self.coste
             
 
@@ -216,17 +223,16 @@ def Juego():
         def draw(self):
             screen.blit(self.img, (position_columna[self.r]-30,position_fila[self.c]-30))
 
-        def atacar(self):
-            global cont 
+        def disparar(self):
             ataque = False
             matrizTrans = np.transpose(matriz) # Transposición de la matriz para que sea más facil verificar la columna
             for elem in matrizTrans[self.r]:
-                if elem ==  3: #if elem es igual a monsturo*
+                if elem ==  2: #if elem es igual a monsturo*
                     ataque = True
                     break
-            if ataque == True and cont == 0: #TEmporal, hace que solo se dispare una bala
-                cont += 1
-                bullets.append(Bullet(self.tipo, self.r, self.c, self.ptsAtaque)) #Crea la bala
+            if ataque == True: #TEmporal, hace que solo se dispare una bala
+                self.listaDisparos.append(Bullet(self.tipo, self.r, self.c, self.ptsAtaque))
+                #Crea la bala
             else:
                 pass
 
@@ -263,20 +269,25 @@ def Juego():
             self.x = position_columna[self.r] -15
             self.y = position_fila[self.c]
             self.ataque = ataque
-            self.cambioY = 0.5
+            self.cambioY = 1
             self.estado = 1
 
-        def redraw(self):
-            pos = [self.x,self.y]
-            screen.blit(self.img, (self.x,int(self.y)))
+        def draw(self):
+            screen.blit(self.img,(int(self.x), int(self.y) ) )
+            
+        def trayectoria(self):
             self.y += self.cambioY
-##            self.c = int(math.floor((self.x - 400)/TAM_CASILLA))
-##            self.r = int(math.floor(self.y/TAM_CASILLA))
-            c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
-            r = int(math.floor(pos[1]/TAM_CASILLA))
-            if matriz[self.r][self.c] == 1: #Verificar si hay un monstruo, el 1 es temporal
-                pass
-                #eliminar bala
+            
+##        def redraw(self):
+##            pos = [self.x,self.y]
+##            screen.blit(self.img, (self.x,int(self.y)))
+##            self.y += self.cambioY
+####            self.c = int(math.floor((self.x - 400)/TAM_CASILLA))
+####            self.r = int(math.floor(self.y/TAM_CASILLA))
+##            c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
+##            r = int(math.floor(pos[1]/TAM_CASILLA))
+##            if matriz[self.r][self.c] == 1: #Verificar si hay un monstruo, el 1 es temporal
+
 
     #Asigna un 1 a la posicion de la raiz de entrada
     def unoMatriz(r,c):
@@ -285,22 +296,26 @@ def Juego():
 
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
+        screen.fill(GRIS)
         screen.blit(tablero, (373, -17))
         avatar.Draw(screen)
+        monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO,GRIS)
         screen.blit(monedasText,(5,10))
         screen.blit(jugadorText,(5,40))
-        screen.blit(tiempoText,(0,110))
-        print(monedas)
         for boton in listaBotones:
             boton.draw(screen, (0,0,0))
         for rook in rooks:
             rook.draw()
-            rook.atacar()
-        for bullet in bullets:
-            bullet.redraw()
-        
+            if len(rook.listaDisparos) != 0:
+                for proyectil in rook.listaDisparos:
+                    proyectil.draw()
+                    proyectil.trayectoria()
+                    if proyectil.y > 600:  # if posición del proyectil llega a una casilla con monstru:
+                        rook.listaDisparos.remove(proyectil)
 
-    screen.fill(GRIS)
+                    
+                
+    
     avatar = Lenador()  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
 
@@ -311,15 +326,18 @@ def Juego():
         keys = pygame.key.get_pressed() #si una tecla es presionada
         avatar.Move()
 
-        #Mantiene la ventana abierta
         for event in pygame.event.get():
+            loopVentana()
             pos = pygame.mouse.get_pos()
 
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
                 sys.exit()
-
+                
+            if event.type == eventoDisparo:
+                for rook in rooks:
+                    rook.disparar()
             if inGame:
                 if keys[pygame.K_DOWN]:
                     #screen.blit(tablero, (0, 0))
@@ -336,16 +354,24 @@ def Juego():
                     #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
                     r = int(math.floor(pos[1]/TAM_CASILLA))
-                    if matriz[r][c] == 0:
-                        if tipo == "Sand":
+                    if matriz[r][c] == 1:
+                        for rook in rooks:
+                            if rook.r == c and rook.c == r:
+                                rooks.remove(rook)
+                    elif matriz[r][c] == 0:
+                        if tipo == "Sand" and monedas >= 50:
                             rooks.append(Rook("Sand", c, r, 7, 50, 2, None, rookImgs[0]))
                             unoMatriz(r,c)
-                        elif tipo == "Rock":
+                        elif tipo == "Rock" and monedas >= 100:
                             rooks.append(Rook("Rock", c, r, 14, 100, 4, None, rookImgs[1]))
-                        elif tipo == "Fire":
+                            unoMatriz(r,c)
+                        elif tipo == "Fire" and monedas >= 150:
                             rooks.append(Rook("Fire", c, r, 16, 150, 8, None, rookImgs[2]))
-                        elif tipo == "Water":
+                            unoMatriz(r,c)
+                        elif tipo == "Water" and monedas >= 150:
                             rooks.append(Rook("Water", c, r, 16, 150, 8, None, rookImgs[3]))
+                            unoMatriz(r,c)
+    
                 elif botonSand.isOver(pos):
                     tipo = "Sand"
                 elif botonRock.isOver(pos):
@@ -365,15 +391,9 @@ def Juego():
                         boton.color = (0,0,255)
                     else:
                         boton.color = (0,255,0)
-
-##        screen.blit(tablero, (400, 15))
-##        avatar.Draw(screen)
-##        for elem in rooks:
-##            elem.draw()
-##            elem.atacar()
-##        for elem in bullets:
-##            elem.redraw()
-        loopVentana()
+                        
+                        
+        
         pygame.display.update()
 
 ####        coinX = random.choice(position_fila)
