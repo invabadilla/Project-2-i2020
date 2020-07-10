@@ -7,6 +7,13 @@ import time
 
 pygame.init()
 
+#Variables globales
+ancho = 900
+alto = 700
+fila = [145, 180, 220, 260, 300, 340, 375, 415, 435]
+columna = [50, 95, 145, 190, 235]
+
+tablero = pygame.image.load('lawn2.png')
 lista_avatar = []
 
 #Ventana de Inicio
@@ -102,11 +109,45 @@ def Ayuda():
 
 """------------------JUEGO----------------"""
 
+class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('Images/le_c1.png')
+        self.walk = [pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'), pygame.image.load('Images/le_c3.png'),
+                     pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'), pygame.image.load('Images/le_c6.png'),
+                     pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'), pygame.image.load('Images/le_c9.png'),
+                     pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'), pygame.image.load('Images/le_c12.png'),
+                     pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
+
+        self.rect = self.image.get_rect()
+        self.rect.centerx = 600
+        self.rect.centery = 577
+
+        self.list_attack = []
+        self.life = True
+
+        self.speed = 5
+
+    def Move(self):
+        if self.life:
+            if self.rect.left <= 400:
+                self.rect.left = 400
+            elif self.rect.right > 700:
+                self.rect.right = 700
+
+    def Attack(self):
+        pass
+
+    def Draw(self, superficie):
+        #if self.walkCount
+        superficie.blit(self.image, self.rect)
+
 def Juego():
     running = True
     matriz = np.zeros((9,5))
     #Imágenes
-    fondo = pygame.image.load('egipto.jpg')
+    fondo = pygame.image.load('lawn1.png')
     coinImg = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
     rookImgs = [pygame.image.load("Sand.png")] # Imagenes de rooks
     #Posiciones en el tablero
@@ -148,26 +189,45 @@ def Juego():
     def unoMatriz(r,c):
         matriz[r][c] = 1
         print(matriz)
-    
+
+    screen.fill((200, 200, 200))
+    avatar = Lenador()  # llamar al lenador
+    inGame = True  # si aun el jugador sigue con vida
+
     def loopVentana():
         screen.fill((200,200,200))
-        for elem in rooks:
-            elem.draw()
+
 
 
     while running:
-        loopVentana()
+        #loopVentana()
+        for elem in rooks:
+            elem.draw()
+
         pygame.display.update()
-        
+
+        keys = pygame.key.get_pressed() #si una tecla es presionada
+        avatar.Move()
+
         #Mantiene la ventana abierta
         for event in pygame.event.get():
             tamCasilla = 77 #Tamaño de cada casilla
             pos = pygame.mouse.get_pos()
+
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()     
                 sys.exit()
-                
+
+            if inGame:
+                if keys[pygame.K_DOWN]:
+                    #screen.blit(tablero, (0, 0))
+                    avatar.rect.bottom += avatar.speed
+                if keys[pygame.K_UP]:
+                    #screen.blit(tablero, (0, 0))
+                    avatar.rect.top -= avatar.speed
+
+
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN: 
                 if pos[0] > 400 and pos[0] < 785:
@@ -181,7 +241,11 @@ def Juego():
                 else:
                     pass
 
-
+        screen.blit(tablero, (400, 15))
+        avatar.Draw(screen)
+        for elem in rooks:
+            elem.draw()
+        pygame.display.update()
 
 ####        coinX = random.choice(position_fila)
 ####        coinY = random.choice(position_columna)
@@ -209,8 +273,8 @@ def Juego():
 ##        
 ##        screen.blit(fondo,(0,0))
 ##        screen.blit(player.image, player.rect)
-
-        pygame.display.flip()
+Juego()
+        #pygame.display.flip()
 ##        clock.tick(5)
         
 
