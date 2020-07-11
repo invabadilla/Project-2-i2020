@@ -169,8 +169,9 @@ def Juego():
     monedas = 500 #Monedas del jugador
     jugador = "Engret y LLordi" #Provicional
     tipo = 0 #Variable que determina que rook colocar
-    global cont # pa pruebas
-    cont = 0
+    global cooldownTracker
+    cooldownTracker = 0
+    
 
     #Texto de interfaz
     font = pygame.font.SysFont("Neuropol X Rg", 30)
@@ -216,6 +217,16 @@ def Juego():
             self.velAta = velAta
             self.img = img
             self.listaDisparos = []
+            self.last_fire = 0
+            if tipo == "Sand":   # Aquí van las respectivas variables de velocidad de ataque
+                self.cooldown = 5000
+            elif tipo == "Rock":
+                self.cooldown = 5000
+            elif tipo == "Fire":
+                self.cooldown = 5000
+            elif tipo == "Water":
+                self.cooldown = 5000
+            self.cooldown = 5000
             monedas -= self.coste
             
 
@@ -230,24 +241,24 @@ def Juego():
                 if elem ==  2: #if elem es igual a monsturo*
                     ataque = True
                     break
-            if ataque == True: #TEmporal, hace que solo se dispare una bala
+            if ataque == True:
                 self.listaDisparos.append(Bullet(self.tipo, self.r, self.c, self.ptsAtaque))
                 #Crea la bala
             else:
                 pass
 
-######    class Coins():
-######        def __init__(self, x, y, width, height, valor):
-######            self.valor = valor
-######            self.x = x
-######            self.y = y
-######            self.height = height
-######            self.width = width
-######            self.hitbox = (x,y,width,height)
-######
-######        def draw(self,screen):
-######            screen.blit(self.img, (self.x,self.y))
-######            pygame.draw.rect(screen, (0,0,0), self.hitbox, 2)
+####    class Coins():
+####        def __init__(self, x, y, width, height, valor):
+####            self.valor = valor
+####            self.x = x
+####            self.y = y
+####            self.height = height
+####            self.width = width
+####            self.hitbox = (x,y,width,height)
+
+        def draw(self,screen):
+            screen.blit(self.img, (self.x,self.y))
+            pygame.draw.rect(screen, (0,0,0), self.hitbox, 2)
 
     """
     Métodos:
@@ -263,13 +274,12 @@ def Juego():
                 self.img = bulletImgs[2]
             elif tipo == "Water":
                 self.img = bulletImgs[3]
-            
             self.r = r
             self.c = c
             self.x = position_columna[self.r] -15
             self.y = position_fila[self.c]
             self.ataque = ataque
-            self.cambioY = 1
+            self.cambioY = 3
             self.estado = 1
 
         def draw(self):
@@ -296,6 +306,7 @@ def Juego():
 
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
+
         screen.fill(GRIS)
         screen.blit(tablero, (373, -17))
         avatar.Draw(screen)
@@ -305,12 +316,16 @@ def Juego():
         for boton in listaBotones:
             boton.draw(screen, (0,0,0))
         for rook in rooks:
+            now = pygame.time.get_ticks()
             rook.draw()
+            if now - rook.last_fire >= rook.cooldown:
+                rook.last_fire = now
+                rook.disparar()
             if len(rook.listaDisparos) != 0:
                 for proyectil in rook.listaDisparos:
                     proyectil.draw()
                     proyectil.trayectoria()
-                    if proyectil.y > 600:  # if posición del proyectil llega a una casilla con monstru:
+                    if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
                         rook.listaDisparos.remove(proyectil)
 
                     
@@ -318,16 +333,16 @@ def Juego():
     
     avatar = Lenador()  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
-
+    clock = pygame.time.Clock()
 
 
     while running:
-
+        clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
         avatar.Move()
+        loopVentana()
 
         for event in pygame.event.get():
-            loopVentana()
             pos = pygame.mouse.get_pos()
 
             if event.type == pygame.QUIT:
@@ -335,9 +350,9 @@ def Juego():
                 pygame.quit()
                 sys.exit()
                 
-            if event.type == eventoDisparo:
-                for rook in rooks:
-                    rook.disparar()
+##            if event.type == eventoDisparo:
+##                for rook in rooks:
+##                    rook.disparar()
             if inGame:
                 if keys[pygame.K_DOWN]:
                     #screen.blit(tablero, (0, 0))
@@ -358,6 +373,7 @@ def Juego():
                         for rook in rooks:
                             if rook.r == c and rook.c == r:
                                 rooks.remove(rook)
+                                matriz[r][c] = 0
                     elif matriz[r][c] == 0:
                         if tipo == "Sand" and monedas >= 50:
                             rooks.append(Rook("Sand", c, r, 7, 50, 2, None, rookImgs[0]))
@@ -391,6 +407,7 @@ def Juego():
                         boton.color = (0,0,255)
                     else:
                         boton.color = (0,255,0)
+
                         
                         
         
