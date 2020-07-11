@@ -395,8 +395,8 @@ def Juego():
             now = pygame.time.get_ticks()
             rook.draw()
             rook.atacar()
-        for bullet in bullets:
-            bullet.redraw()
+        #for bullet in bullets:
+            #bullet.redraw()
         reloj = pygame.time.get_ticks()//1000
 
         if reloj % 4 == 0:      #Avance del lenador
@@ -404,29 +404,25 @@ def Juego():
         else:
             lenadorwalk = False
             len_walk = 1
-if reloj % 5 == 0:      #Ataque del lenador
+        if reloj % 5 == 0:      #Ataque del lenador
             lenadorattack = True
         else:
             lenadorattack = False
             len_attack = 1
+        '''
+        if now - rook.last_fire >= rook.cooldown:
+            rook.last_fire = now
+            rook.disparar()
+        if len(rook.listaDisparos) != 0:
+            for proyectil in rook.listaDisparos:
+                proyectil.draw()
+                proyectil.trayectoria()
+                if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
+                    rook.listaDisparos.remove(proyectil)'''
 
 
     screen.fill((200, 200, 200))
-    avatar = Lenador(1,8, 2)  # llamar al lenador
-            if now - rook.last_fire >= rook.cooldown:
-                rook.last_fire = now
-                rook.disparar()
-            if len(rook.listaDisparos) != 0:
-                for proyectil in rook.listaDisparos:
-                    proyectil.draw()
-                    proyectil.trayectoria()
-                    if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
-                        rook.listaDisparos.remove(proyectil)
-
-
-
-
-    avatar = Lenador()  # llamar al lenador
+    avatar = Lenador(1, 8, 2)  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
 
     clock = pygame.time.Clock()
