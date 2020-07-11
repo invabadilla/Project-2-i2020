@@ -552,7 +552,6 @@ if reloj % 5 == 0:      #Ataque del lenador
 
         for elem in lista_enemigos:
             elem.Draw(screen)
-            print(elem.rect.top)
             for x in elem.list_attack:
                 x.Draw(screen)
                 x.trayectoria()
