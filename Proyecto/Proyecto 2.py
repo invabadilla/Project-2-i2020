@@ -1,13 +1,24 @@
 import pygame,sys,math
 import numpy as np
 import random
-import player1
-from threading import Thread
+from random import randint
+
 import time
 
 pygame.init()
 
 #Variables globales
+ancho = 900
+alto = 700
+fila = [145, 180, 220, 260, 300, 340, 375, 415, 435]
+columna = [50, 95, 145, 190, 235]
+lenadorwalk = False
+lenadorattack = False
+len_attack = 1
+len_walk = 1
+reloj = 0
+lista_enemigos = []
+
 #Colores
 MORADO_CLARO = (184,112,204,80)
 MORADO_OSCURO = (131,60,150,59)
@@ -15,7 +26,6 @@ GRIS = (214,202,252,99)
 AMARILLO = (253,218,76,99)
 CAFE = (201,184,141,79)
 tablero = pygame.image.load('lawn2.png')
-lista_avatar = []
 
 #Ventana de Inicio
 (width, height) = (900, 700)
@@ -123,38 +133,103 @@ def Ayuda():
 """------------------JUEGO----------------"""
 
 class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
-
-    def __init__(self):
+    global position_fila, position_columna
+    def __init__(self, x, y, kind):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('Images/le_c1.png')
+        self.x = x
+        self.y = y
+        if kind == 0:
+            pass
+        elif kind == 1:
+            pass
+        elif kind == 2:
+            self.image = pygame.image.load('Images/le_c1.png')
+        elif kind == 3:
+            pass
         self.walk = [pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'), pygame.image.load('Images/le_c3.png'),
                      pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'), pygame.image.load('Images/le_c6.png'),
                      pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'), pygame.image.load('Images/le_c9.png'),
                      pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'), pygame.image.load('Images/le_c12.png'),
                      pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
-
-        self.rect = self.image.get_rect()
-        self.rect.centerx = 600
-        self.rect.centery = 577
+        self.posImagen = 0
+        self.tiempoCambio = 1
+        self.imagenLenador = self.walk[self.posImagen]
+        self.rect = self.imagenLenador.get_rect()
+        self.rect.centerx = position_columna[self.x]
+        self.rect.centery = position_fila[self.y]
 
         self.list_attack = []
         self.life = True
 
-        self.speed = 5
+        self.len_walk = 1
+        self.lenadorwalk = False
+
+        self.len_attack = 1
+        self.lenadorattack = False
+
+        self.speed = 1
 
     def Move(self):
-        if self.life:
-            if self.rect.left <= 400:
-                self.rect.left = 400
-            elif self.rect.right > 700:
-                self.rect.right = 700
+        if self.lenadorwalk and self.len_walk != 0:
+            aux_y = self.y - 1
+            self.avance(aux_y, reloj, screen)
+            self.len_walk = 0
 
-    def Attack(self):
-        pass
+        if self.lenadorattack and self.len_attack != 0:
+            self.Attack(self.x, self.y)
+            self.len_attack = 0
+
+    def avance(self, y, tiempo, screen):
+        while self.rect.centery > position_fila[y]:
+            self.posImagen += 1
+            self.tiempoCambio += 1
+            if self.posImagen > len(self.walk)-1:
+                self.posImagen = 0
+            self.Draw(screen)
+            self.rect.centery -= self.speed
+            '''
+            print('n ',n)
+            print('len ', len(self.walk)-1)
+            if n < (len(self.walk)-1):
+                n += 1
+            else:
+                print('entre')
+                n = 0
+            screen.blit(self.walk[n], self.rect)
+            '''
+        self.y  -= 1
+
+    def Attack(self, x, y):
+        myAtaque = Hacha(x,y,'Images/h1.png')
+        self.list_attack.append(myAtaque)
+        print(len(self.list_attack))
 
     def Draw(self, superficie):
         #if self.walkCount
-        superficie.blit(self.image, self.rect)
+        self.imagenLenador = self.walk[self.posImagen]
+        superficie.blit(self.imagenLenador, self.rect)
+
+class Hacha(pygame.sprite.Sprite):
+    def __init__(self, posx, posy, ruta):
+        pygame.sprite.Sprite.__init__(self)   #Permite que la clase utilice los sprites
+        self.imagenHacha = pygame.image.load(ruta)
+        self.rect = self.imagenHacha.get_rect()
+        self.speed = 5
+        self.rect.top = posy
+        self.rect.left = posx
+        #self.disparoPersonaje = personaje
+
+    def trayectoria(self):
+        #if self.disparoPersonaje == True:
+        self.rect.top = self.rect.top - self.speed
+
+    def Draw(self, screen):
+        screen.blit(self.imagenHacha, self.rect)
+
+
+position_columna = [438, 515, 592, 669, 746]
+position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
+listaHacha = []
 
 def Juego():
 ##    tiempoInicio = pygame.time.get_ticks()
@@ -184,15 +259,13 @@ def Juego():
     bulletImgs = [pygame.image.load("Dust.png"), pygame.image.load("BulletRock.png"), pygame.image.load("Fireball.png"), pygame.image.load("Waterdrop.png")]
     muteImg = pygame.image.load('Mute.png')
     #Posiciones en el tablero
-    position_columna = [438, 515, 592, 669, 746]
-    position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
-    # Listas de objetos
+
+    # Lista de Rooks
     rooks = []
-    coins = []
     #Instancias de botones
     botonSand = Button((0,255,0),55,200,100,70,rookImgs[0],None)
     botonRock = Button((0,255,0),200,200,100,70,rookImgs[1],None)
-    botonFire = Button((0,255,0),55,300,100,70,rookImgs[2],None)    
+    botonFire = Button((0,255,0),55,300,100,70,rookImgs[2],None)
     botonWater = Button((0,255,0),200,300,100,70,rookImgs[3],None)
     botonQuit = Button((0,255,0),100,600,150,70,None,"Quit")
     botonMute = Button((0,255,0),60,500,100,70,muteImg,None)
@@ -229,7 +302,7 @@ def Juego():
                 self.cooldown = 5000
             self.cooldown = 5000
             monedas -= self.coste
-            
+
 
 
         def draw(self):
@@ -285,10 +358,10 @@ def Juego():
 
         def draw(self):
             screen.blit(self.img,(int(self.x), int(self.y) ) )
-            
+
         def trayectoria(self):
             self.y += self.cambioY
-            
+
 ##        def redraw(self):
 ##            pos = [self.x,self.y]
 ##            screen.blit(self.img, (self.x,int(self.y)))
@@ -307,6 +380,8 @@ def Juego():
 
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
+        global lenadorwalk, len_walk, reloj, lenadorattack, len_attack
+        screen.blit(tablero, (370, 0))
 
         screen.fill(GRIS)
         screen.blit(tablero, (373, -17))
@@ -319,6 +394,25 @@ def Juego():
         for rook in rooks:
             now = pygame.time.get_ticks()
             rook.draw()
+            rook.atacar()
+        for bullet in bullets:
+            bullet.redraw()
+        reloj = pygame.time.get_ticks()//1000
+
+        if reloj % 4 == 0:      #Avance del lenador
+            lenadorwalk = True
+        else:
+            lenadorwalk = False
+            len_walk = 1
+if reloj % 5 == 0:      #Ataque del lenador
+            lenadorattack = True
+        else:
+            lenadorattack = False
+            len_attack = 1
+
+
+    screen.fill((200, 200, 200))
+    avatar = Lenador(1,8, 2)  # llamar al lenador
             if now - rook.last_fire >= rook.cooldown:
                 rook.last_fire = now
                 rook.disparar()
@@ -329,19 +423,59 @@ def Juego():
                     if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
                         rook.listaDisparos.remove(proyectil)
 
-                    
-                
-    
+
+
+
     avatar = Lenador()  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
+
+    clock = pygame.time.Clock()
     clock = pygame.time.Clock()
 
 
+
     while running:
+        global lenadorwalk, len_walk, reloj, listaHacha, lenadorattack, len_attack, lista_enemigos
+        for elem in lista_enemigos:
+            elem.Move()
+            elem.Draw(screen)
+        aux_reloj = True
+        global lenadorwalk, len_walk, reloj
         clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
         avatar.Move()
         loopVentana()
+
+        #Mantiene la ventana abierta
+        if inGame:
+            #Generar enemigos aleatoreamente
+            enemigosDisponibles = ['arquero', 'escudero', 'lenador', 'canibal']
+            if reloj % 5 == 0 and aux_reloj:
+                aux_reloj = False
+                # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
+                avatarchoice = randint(0, 3)
+                avatarchoice = 3
+                x = randint(0, 4)
+                #avatar = Lenador(x, 8, avatarchoice)
+                lista_enemigos.append(Lenador(x, 8, avatarchoice))
+                print('lista enemigos: ', len(lista_enemigos))
+
+            if reloj % 6 == 0:
+                aux_reloj = True
+
+
+
+            if lenadorwalk and len_walk != 0:
+                aux_y = avatar.y - 1
+                avatar.avance(aux_y, reloj, screen)
+                len_walk = 0
+
+            if lenadorattack and len_attack != 0:
+                x,y = avatar.rect.center
+                avatar.Attack(x, y)
+                len_attack = 0
+            #generator() #llama la funcion para generar enemigos
+
 
         for event in pygame.event.get():
             pos = pygame.mouse.get_pos()
@@ -350,7 +484,10 @@ def Juego():
                 running = False
                 pygame.quit()
                 sys.exit()
-                
+
+##            if event.type == eventoDisparo:
+##                for rook in rooks:
+##                    rook.disparar()
             if inGame:
                 if keys[pygame.K_DOWN]:
                     #screen.blit(tablero, (0, 0))
@@ -385,7 +522,7 @@ def Juego():
                         elif tipo == "Water" and monedas >= 150:
                             rooks.append(Rook("Water", c, r, 16, 150, 8, None, rookImgs[3]))
                             unoMatriz(r,c)
-    
+
                 elif botonSand.isOver(pos):
                     tipo = "Sand"
                 elif botonRock.isOver(pos):
@@ -405,10 +542,25 @@ def Juego():
                         boton.color = (0,0,255)
                     else:
                         boton.color = (0,255,0)
+        clock.tick(60)
 
-                        
-                        
-        
+        for elem in avatar.list_attack:
+            elem.Draw(screen)
+            elem.trayectoria()
+            if elem.rect.top < 1:
+                avatar.list_attack.remove(elem)
+
+        for elem in lista_enemigos:
+            elem.Draw(screen)
+            for x in elem.list_attack:
+                x.Draw(screen)
+                x.trayectoria()
+                if x.rect.top < 1:
+                    x.list_attack.remove(x)
+
+
+
+
         pygame.display.update()
 
 ####        coinX = random.choice(position_fila)
@@ -439,7 +591,7 @@ def Juego():
 ##        screen.blit(player.image, player.rect)
 Juego()
         #pygame.display.flip()
-##        clock.tick(5)
+
         
 
 mainMenu()  
