@@ -186,8 +186,9 @@ def Juego():
     #Posiciones en el tablero
     position_columna = [438, 515, 592, 669, 746]
     position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
-    # Lista de Rooks
+    # Listas de objetos
     rooks = []
+    coins = []
     #Instancias de botones
     botonSand = Button((0,255,0),55,200,100,70,rookImgs[0],None)
     botonRock = Button((0,255,0),200,200,100,70,rookImgs[1],None)
@@ -350,9 +351,6 @@ def Juego():
                 pygame.quit()
                 sys.exit()
                 
-##            if event.type == eventoDisparo:
-##                for rook in rooks:
-##                    rook.disparar()
             if inGame:
                 if keys[pygame.K_DOWN]:
                     #screen.blit(tablero, (0, 0))
