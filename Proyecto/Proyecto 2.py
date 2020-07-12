@@ -19,6 +19,20 @@ len_walk = 1
 reloj = 0
 lista_enemigos = []
 
+#Velocidad de avance y ataque de los avatars
+#Arquero
+a = 3
+b = 4
+#Escudero
+i = 4
+d = 5
+#Lenador
+e = 3
+f = 4
+#Canibal
+g = 4
+h = 5
+
 #Colores
 MORADO_CLARO = (184,112,204,80)
 MORADO_OSCURO = (131,60,150,59)
@@ -130,13 +144,13 @@ def inicio():
 
     while running:
         screen.fill(GRIS)
-        
+
         for boton in listaBotones: # Mantiene los botones
             boton.draw(screen,(0,0,0))
-            
+
         if salon: #Si se clica el boton Salon
             pass
-        
+
         elif ayuda: #Si es clica el boton Ayuda
             screen.blit(comoJugarText, (400, 100))
             screen.blit(ayudaText0, (400, 160))
@@ -150,7 +164,7 @@ def inicio():
             screen.blit(ayudaText8, (400, 400))
             screen.blit(ayudaText9, (400, 430))
             screen.blit(ayudaText10, (400, 460))
-            
+
         elif config: #Si se clica el boton Config
             pass
         elif creditos:
@@ -195,6 +209,83 @@ def inicio():
         pygame.display.update()
 
 
+position_columna = [438, 515, 592, 669, 746]
+position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
+listaHacha = []
+
+
+"""------------------JUEGO----------------"""
+def Juego():
+##    tiempoInicio = pygame.time.get_ticks()
+##    global auxTiempo
+##    auxTiempo = 1
+    global reloj
+    reloj = pygame.time.get_ticks()//1000
+    running = True
+    matriz = np.zeros((9,5))
+    matriz[3][3] = 2 # número de prueba
+    TAM_CASILLA = 77 #Tamaño de cada casilla
+    global monedas
+    monedas = 500 #Monedas del jugador
+    jugador = "Engret y LLordi" #Nombre del jugador
+    tipo = 0 #Variable que determina que rook colocar
+
+
+    #Texto de interfaz
+    monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
+    jugadorText = font.render("Jugador: "+str(jugador), 1, MORADO_OSCURO)
+    #Imágenes
+    fondo = pygame.image.load('lawn1.png')
+    coinImgs = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
+    rookImgs = [pygame.image.load("Sand.png"),pygame.image.load("Rock.png"), pygame.image.load("Fire.png"), pygame.image.load("Water.png")]
+    bulletImgs = [pygame.image.load("Dust.png"), pygame.image.load("BulletRock.png"), pygame.image.load("Fireball.png"), pygame.image.load("Waterdrop.png")]
+    muteImg = pygame.image.load('Mute.png')
+    #Posiciones en el tablero
+
+    # Listas
+    rooks = []
+    coins = []
+    #Instancias de botones
+    botonSand = Button((0,255,0),55,200,100,70,rookImgs[0],None)
+    botonRock = Button((0,255,0),200,200,100,70,rookImgs[1],None)
+    botonFire = Button((0,255,0),55,300,100,70,rookImgs[2],None)
+    botonWater = Button((0,255,0),200,300,100,70,rookImgs[3],None)
+    botonQuit = Button((0,255,0),100,600,150,70,None,"Quit")
+    botonMute = Button((0,255,0),60,500,100,70,muteImg,None)
+    listaBotones = [botonSand, botonRock, botonFire, botonWater, botonQuit, botonMute]
+    #Eventos con tiempo
+    coinCooldown = 3000
+    coinCooldowns = [3000, 5000, 7000, 10000]
+    tiempo = pygame.time.get_ticks()
+
+
+    class Lenador(pygame.sprite.Sprite):  # Clase para los lenadores
+        global position_fila, position_columna, a, b, i, d, e, f, g, h
+
+        def __init__(self, x, y, kind):
+            pygame.sprite.Sprite.__init__(self)
+            self.x = x
+            self.y = y
+            self.kind = kind
+            if self.kind == 0:
+                self.image = pygame.image.load('Images/a_c1.png')
+            elif self.kind == 1:
+                self.image = pygame.image.load('Images/e_c1.png')
+            elif self.kind == 2:
+                self.image = pygame.image.load('Images/le_c1.png')
+            elif self.kind == 3:
+                self.image = pygame.image.load('Images/c_c1.png')
+            self.walk = []  # [pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'), pygame.image.load('Images/le_c3.png'),
+            # pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'), pygame.image.load('Images/le_c6.png'),
+            # pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'), pygame.image.load('Images/le_c9.png'),
+            # pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'), pygame.image.load('Images/le_c12.png'),
+            # pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
+            self.posImagen = 0
+            self.tiempoCambio = 1
+            self.imagenLenador = self.image
+            self.rect = self.imagenLenador.get_rect()
+            self.rect.centerx = position_columna[self.x]
+            self.rect.centery = position_fila[self.y]
 
 
 
@@ -240,6 +331,54 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
         self.speed = 1
 
 
+        def Move(self):
+            if self.kind == 0:
+                if reloj % a == 0:  # Avance del arquero
+                    self.lenadorwalk = True
+                else:
+                    self.lenadorwalk = False
+                    self.len_walk = 1
+                if reloj % b == 0:  # Ataque del arquero
+                    self.lenadorattack = True
+                else:
+                    self.lenadorattack = False
+                    self.len_attack = 1
+
+            if self.kind == 1:
+                if reloj % i == 0:  # Avance del escudero
+                    self.lenadorwalk = True
+                else:
+                    self.lenadorwalk = False
+                    self.len_walk = 1
+                if reloj % d == 0:  # Ataque del escudero
+                    self.lenadorattack = True
+                else:
+                    self.lenadorattack = False
+                    self.len_attack = 1
+
+            if self.kind == 2:
+                if reloj % e == 0:  # Avance del lenador
+                    self.lenadorwalk = True
+                else:
+                    self.lenadorwalk = False
+                    self.len_walk = 1
+                if reloj % f == 0:  # Ataque del lenador
+                    self.lenadorattack = True
+                else:
+                    self.lenadorattack = False
+                    self.len_attack = 1
+
+            if self.kind == 3:
+                if reloj % g == 0:  # Avance del canibal
+                    self.lenadorwalk = True
+                else:
+                    self.lenadorwalk = False
+                    self.len_walk = 1
+                if reloj % h == 0:  # Ataque del canibal
+                    self.lenadorattack = True
+                else:
+                    self.lenadorattack = False
+                    self.len_attack = 1
     def Move(self):
         if reloj % 4 == 0:      #Avance del lenador
             self.lenadorwalk = True
@@ -256,10 +395,19 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
             aux_y = self.r - 1
             self.avance(aux_y, reloj, screen)
             self.len_walk = 0
+            if self.lenadorwalk and self.len_walk != 0:
+                print('camino')
+                aux_y = self.y - 1
+                self.avance(aux_y, reloj, screen)
+                self.len_walk = 0
 
         if self.lenadorattack and self.len_attack != 0:
             self.Attack(self.c, self.r)
             self.len_attack = 0
+            if self.lenadorattack and self.len_attack != 0:
+                print('ataco')
+                self.Attack(self.x, self.y)
+                self.len_attack = 0
 
     def avance(self, y, tiempo, screen):
         while self.rect.centery > position_fila[y]:
@@ -337,7 +485,7 @@ def Juego():
     #Imágenes
     fondo = pygame.image.load('lawn1.png')
     coinImgs = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
-    rookImgs = [pygame.image.load("Sand.png"),pygame.image.load("Rock.png"), pygame.image.load("Fire.png"), pygame.image.load("Water.png")] 
+    rookImgs = [pygame.image.load("Sand.png"),pygame.image.load("Rock.png"), pygame.image.load("Fire.png"), pygame.image.load("Water.png")]
     bulletImgs = [pygame.image.load("Dust.png"), pygame.image.load("BulletRock.png"), pygame.image.load("Fireball.png"), pygame.image.load("Waterdrop.png")]
     muteImg = pygame.image.load('Mute.png')
     #Posiciones en el tablero
@@ -584,7 +732,6 @@ def Juego():
                     if matriz[8][x] == 0:
                         lista_enemigos.append(Lenador(x, 8, avatarchoice))
                         matriz[8][x] = 2
-                        #print(matriz)
 
 
                 if lenadorwalk and len_walk != 0:
@@ -662,7 +809,7 @@ def Juego():
                     inicio()
                 else:
                     pass
-                
+
             if event.type == pygame.MOUSEMOTION:
                 for boton in listaBotones:
                     if boton.isOver(pos):
@@ -678,7 +825,7 @@ def Juego():
         screen.blit(jugadorText, (5, 40))
         for boton in listaBotones:
             boton.draw(screen, (0, 0, 0))
-            
+
         for rook in rooks: #Mantener los rooks en pantalla
             nowRook = pygame.time.get_ticks()
             rook.draw()
@@ -686,7 +833,7 @@ def Juego():
                 rook.last_fire = nowRook
                 rook.disparar()
             if len(rook.listaDisparos) != 0: #Comprueba si hay proyectiles en pantalla
-                for proyectil in rook.listaDisparos: 
+                for proyectil in rook.listaDisparos:
                     proyectil.draw()
                     proyectil.trayectoria()
                     posMatriz = matriz[proyectil.r][proyectil.c]
