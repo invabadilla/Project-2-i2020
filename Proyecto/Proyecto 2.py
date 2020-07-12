@@ -428,14 +428,19 @@ def Juego():
     clock = pygame.time.Clock()
     clock = pygame.time.Clock()
 
+    enemigoCoolDown = 5000
+    enemigoCoolDowns = [3000, 4000, 5000]
+    tiempoEnemigo = pygame.time.get_ticks()
+
 
     while running:
         global lenadorwalk, len_walk, listaHacha, lenadorattack, len_attack, lista_enemigos
         reloj = pygame.time.get_ticks()//1000
+
         for elem in lista_enemigos:
             elem.Move()
             elem.Draw(screen)
-        aux_reloj = True
+
         global lenadorwalk, len_walk
         clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
@@ -446,21 +451,25 @@ def Juego():
             if inGame:
                 print(reloj)
                 #Generar enemigos aleatoreamente
+
                 enemigosDisponibles = ['arquero', 'escudero', 'lenador', 'canibal']
+
+                relojEnemigo = pygame.time.get_ticks()
                 Generator = pygame.USEREVENT+1
-                pygame.time.set_timer(Generator, 5000)
+                pygame.time.set_timer(Generator, 3000)
                 #if reloj % 5 == 0 and aux_reloj == True:
-                if event.type == Generator:
-                    #reloj = pygame.time.get_ticks()
+                #if event.type == Generator:
+                print('reloj',relojEnemigo,' tiempo', tiempoEnemigo, ' enemigo', enemigoCoolDown)
+                if relojEnemigo - tiempoEnemigo > enemigoCoolDown:
                     # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
                     avatarchoice = randint(0, 3)
                     x = randint(0, 4)
-                    #avatar = Lenador(x, 8, avatarchoice)
-                    lista_enemigos.append(Lenador(x, 8, avatarchoice))
-                    print('lista enemigos: ', len(lista_enemigos), aux_reloj)
-                else:
-                    aux_reloj = True
-
+                    tiempoEnemigo = relojEnemigo
+                    #enemigoCoolDown = random.choice(enemigoCoolDowns)
+                    if matriz[8][x] == 0:
+                        lista_enemigos.append(Lenador(x, 8, avatarchoice))
+                        matriz[8][x] = 2
+                        print(matriz)
 
 
                 if lenadorwalk and len_walk != 0:
