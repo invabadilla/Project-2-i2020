@@ -132,6 +132,7 @@ def Ayuda():
 
 """------------------JUEGO----------------"""
 
+"""
 class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
     global position_fila, position_columna
     def __init__(self, x, y, kind):
@@ -225,7 +226,7 @@ class Hacha(pygame.sprite.Sprite):
 
     def Draw(self, screen):
         screen.blit(self.imagenHacha, self.rect)
-
+"""
 
 position_columna = [438, 515, 592, 669, 746]
 position_fila = [38, 115, 192, 269, 346, 423, 500, 577, 654]
@@ -330,9 +331,6 @@ def Juego():
 ####            self.width = width
 ####            self.hitbox = (x,y,width,height)
 
-        def draw(self,screen):
-            screen.blit(self.img, (self.x,self.y))
-            pygame.draw.rect(screen, (0,0,0), self.hitbox, 2)
 
     """
     Métodos:
@@ -381,11 +379,11 @@ def Juego():
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
         global lenadorwalk, len_walk, reloj, lenadorattack, len_attack
-        screen.blit(tablero, (370, 0))
+##        screen.blit(tablero, (370, 0))
 
         screen.fill(GRIS)
         screen.blit(tablero, (373, -17))
-        avatar.Draw(screen)
+        #avatar.Draw(screen)
         monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO,GRIS)
         screen.blit(monedasText,(5,10))
         screen.blit(jugadorText,(5,40))
@@ -394,16 +392,16 @@ def Juego():
         for rook in rooks:
             now = pygame.time.get_ticks()
             rook.draw()
-            rook.atacar()
+            rook.disparar()
             if now - rook.last_fire >= rook.cooldown:
                 rook.last_fire = now
                 rook.disparar()
-        if len(rook.listaDisparos) != 0:
-            for proyectil in rook.listaDisparos:
-                proyectil.draw()
-                proyectil.trayectoria()
-                if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
-                    rook.listaDisparos.remove(proyectil)
+            if len(rook.listaDisparos) != 0:
+                for proyectil in rook.listaDisparos:
+                    proyectil.draw()
+                    proyectil.trayectoria()
+                    if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
+                        rook.listaDisparos.remove(proyectil)
 ##        for bullet in bullets:
 ##            bullet.redraw()
         reloj = pygame.time.get_ticks()//1000
@@ -421,7 +419,7 @@ def Juego():
 
 
         screen.fill((200, 200, 200))
-        avatar = Lenador(1,8, 2)  # llamar al lenador
+        #avatar = Lenador(1,8, 2)  # llamar al lenador
        
 
 
@@ -444,10 +442,11 @@ def Juego():
         global lenadorwalk, len_walk, reloj
         clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
-        avatar.Move()
+        #avatar.Move()
         loopVentana()
 
         #Mantiene la ventana abierta
+        """
         if inGame:
             #Generar enemigos aleatoreamente
             enemigosDisponibles = ['arquero', 'escudero', 'lenador', 'canibal']
@@ -476,7 +475,7 @@ def Juego():
                 avatar.Attack(x, y)
                 len_attack = 0
             #generator() #llama la funcion para generar enemigos
-
+        """
 
         for event in pygame.event.get():
             pos = pygame.mouse.get_pos()
@@ -489,6 +488,7 @@ def Juego():
 ##            if event.type == eventoDisparo:
 ##                for rook in rooks:
 ##                    rook.disparar()
+            """
             if inGame:
                 if keys[pygame.K_DOWN]:
                     #screen.blit(tablero, (0, 0))
@@ -496,7 +496,7 @@ def Juego():
                 if keys[pygame.K_UP]:
                     #screen.blit(tablero, (0, 0))
                     avatar.rect.top -= avatar.speed
-
+            """
 
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -543,8 +543,7 @@ def Juego():
                         boton.color = (0,0,255)
                     else:
                         boton.color = (0,255,0)
-        clock.tick(60)
-
+        """
         for elem in avatar.list_attack:
             elem.Draw(screen)
             elem.trayectoria()
@@ -558,7 +557,7 @@ def Juego():
                 x.trayectoria()
                 if x.rect.top < 1:
                     x.list_attack.remove(x)
-
+        """
 
 
 
