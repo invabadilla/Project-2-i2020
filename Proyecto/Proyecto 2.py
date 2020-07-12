@@ -26,8 +26,10 @@ GRIS = (214,202,252,99)
 AMARILLO = (253,218,76,99)
 CAFE = (201,184,141,79)
 tablero = pygame.image.load('lawn2.png') #Que hace esto aquí? XD
-fontTitulo = pygame.font.SysFont("Neuropol X Rg", 30)
-font = pygame.font.SysFont("Neuropol X Rg", 20)
+
+#Diferentes fuentes
+fontTitulo = pygame.font.SysFont("Neuropol X Rg", 50)
+font = pygame.font.SysFont("Neuropol X Rg", 35)
 
 #Ventana de Inicio
 (width, height) = (900, 700)
@@ -40,6 +42,21 @@ icon = pygame.image.load("icono.png")
 pygame.display.set_icon(icon)
 
 #Clase botones
+"""
+Objeto: Button
+Argumentos:
+    color = tupla (RGB)
+    x = int
+    y = int
+    width = int
+    height = int
+    img = variable imagen
+    text = str
+Metodos:
+    draw:
+    E: Ventana principal
+    S: Despliega el rectangulo que representa el botón
+"""
 class Button():
     def __init__(self, color, x,y,width,height, img ,text=''):
         self.color = color
@@ -97,20 +114,44 @@ def inicio():
     ventanas = [ayuda, config, salon, creditos]
     #Textos
     comoJugarText = fontTitulo.render("¿Como Jugar?", 1, MORADO_OSCURO)
-    ayudaText = font.render("El juego es un tower defense de estrategia en el enemigos intentan llegar a la parte superior de la pantalla, \n para evitarlo debes colocar rooks que destrocen a los enemigos, pero no todo es tan sencillo, debes conseguir monedas para constuir cada rook, ganas al derrotar a todos los enemigos de la zona", 1, MORADO_OSCURO)
+    ayudaText0 = font.render("El juego es un tower defense", 1, MORADO_OSCURO)
+    ayudaText1 = font.render("de estrategia en el que los", 1, MORADO_OSCURO)
+    ayudaText2 = font.render("enemigos intentan llegar a ", 1, MORADO_OSCURO)
+    ayudaText3 = font.render("la parte superior de la pantalla,", 1, MORADO_OSCURO)
+    ayudaText4 = font.render ("para evitarlo debes colocar ", 1, MORADO_OSCURO)
+    ayudaText5 = font.render("rooks que destrocen a los enemigos, ", 1, MORADO_OSCURO)
+    ayudaText6 = font.render("pero no todo es tan sencillo, ", 1, MORADO_OSCURO)
+    ayudaText7 = font.render ("debes conseguir monedas ", 1, MORADO_OSCURO)
+    ayudaText8 = font.render("para constuir cada rook.", 1, MORADO_OSCURO)
+    ayudaText9 = font.render("Ganas al derrotar a todos ", 1, MORADO_OSCURO)
+    ayudaText10 = font.render("los enemigos de la zona.", 1, MORADO_OSCURO)
     """----------"""
     running = True
 
     while running:
         screen.fill(GRIS)
-        for boton in listaBotones:
+        
+        for boton in listaBotones: # Mantiene los botones
             boton.draw(screen,(0,0,0))
-        if salon:
+            
+        if salon: #Si se clica el boton Salon
             pass
-        elif ayuda:
-            screen.blit(comoJugarText, (300, 10))
-            screen.blit(ayudaText, (300, 10))
-        elif config:
+        
+        elif ayuda: #Si es clica el boton Ayuda
+            screen.blit(comoJugarText, (400, 100))
+            screen.blit(ayudaText0, (400, 160))
+            screen.blit(ayudaText1, (400, 190))
+            screen.blit(ayudaText2, (400, 220))
+            screen.blit(ayudaText3, (400, 250))
+            screen.blit(ayudaText4, (400, 280))
+            screen.blit(ayudaText5, (400, 310))
+            screen.blit(ayudaText6, (400, 340))
+            screen.blit(ayudaText7, (400, 370))
+            screen.blit(ayudaText8, (400, 400))
+            screen.blit(ayudaText9, (400, 430))
+            screen.blit(ayudaText10, (400, 460))
+            
+        elif config: #Si se clica el boton Config
             pass
         elif creditos:
             pass
@@ -161,16 +202,20 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
     global position_fila, position_columna
     def __init__(self, x, y, kind):
         pygame.sprite.Sprite.__init__(self)
-        self.x = x
-        self.y = y
+        self.c = x
+        self.r = y
         if kind == 0:
             self.image = pygame.image.load('Images/a_c1.png')
+            self.health = 2
         elif kind == 1:
             self.image = pygame.image.load('Images/e_c1.png')
+            self.health = 10
         elif kind == 2:
             self.image = pygame.image.load('Images/le_c1.png')
+            self.health = 20
         elif kind == 3:
             self.image = pygame.image.load('Images/c_c1.png')
+            self.health = 25
         self.walk = []#[pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'), pygame.image.load('Images/le_c3.png'),
                      #pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'), pygame.image.load('Images/le_c6.png'),
                      #pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'), pygame.image.load('Images/le_c9.png'),
@@ -180,8 +225,8 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
         self.tiempoCambio = 1
         self.imagenLenador = self.image
         self.rect = self.imagenLenador.get_rect()
-        self.rect.centerx = position_columna[self.x]
-        self.rect.centery = position_fila[self.y]
+        self.rect.centerx = position_columna[self.c]
+        self.rect.centery = position_fila[self.r]
 
         self.list_attack = []
         self.life = True
@@ -208,12 +253,12 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
             self.len_attack = 1
 
         if self.lenadorwalk and self.len_walk != 0:
-            aux_y = self.y - 1
+            aux_y = self.r - 1
             self.avance(aux_y, reloj, screen)
             self.len_walk = 0
 
         if self.lenadorattack and self.len_attack != 0:
-            self.Attack(self.x, self.y)
+            self.Attack(self.c, self.r)
             self.len_attack = 0
 
     def avance(self, y, tiempo, screen):
@@ -234,7 +279,7 @@ class Lenador(pygame.sprite.Sprite):   #Clase para los lenadores
                 n = 0
             screen.blit(self.walk[n], self.rect)
             '''
-        self.y  -= 1
+        self.r  -= 1
 
     def Attack(self, x, y):
         myAtaque = Hacha(x,y,'Images/h1.png')
@@ -300,6 +345,7 @@ def Juego():
     # Listas
     rooks = []
     coins = []
+    enemigosDisponibles = ['arquero', 'escudero', 'lenador', 'canibal']
     #Instancias de botones
     botonSand = Button((0,255,0),55,200,100,70,rookImgs[0],None)
     botonRock = Button((0,255,0),200,200,100,70,rookImgs[1],None)
@@ -312,48 +358,84 @@ def Juego():
     coinCooldown = 3000
     coinCooldowns = [3000, 5000, 7000, 10000]
     tiempo = pygame.time.get_ticks()
-
-
+    sandCooldown = 3000
+    rockCooldown = 5000
+    fireCooldown = 6000
+    waterCooldown = 6000
+    """
+    Objeto: Coin
+    Atributos:
+    r: int
+    c: int
+    Metodos:
+    draw:
+    S: Dezpliega la imagen en pantalla
+    """
     class Coin():
-        def __init__(self, r, c, img):
+        def __init__(self, r, c):
             self.r = r
             self.c = c
-            self.img = img
-            if img == coinImgs[0]:
+            self.img = random.choice(coinImgs)
+            if self.img == coinImgs[0]:
                 self.valor = 25
-            elif img == coinImgs[1]:
+            elif self.img == coinImgs[1]:
                 self.valor = 50
-            elif img == coinImgs[2]:
+            elif self.img == coinImgs[2]:
                 self.valor = 100
         def draw(self):
             screen.blit(self.img, (position_columna[self.c]-30,position_fila[self.r]-15))
 
     """
+    Objetos: Rook
+    Atributos:
+    tipo: str
+    r: int
+    c: int
+    listaDisparos: list
+    last_fire: int
+    cooldown: int
+    vida: int
+    coste: int
+    ptsAtaque: int
+    img: variable de la imagen
     Métodos:
-    draw: despliega la imagen del rook
-    atacar: determina si hay un enemigo en la columna
+    draw:
+    S: Dezpliega la imagen del rook
+    disparar:
+    S: True si hay un enemigo en la columna del rook
     """
     class Rook():
-        def __init__(self, tipo, r, c, vida, coste, ptsAtaque, velAta, img):
+        def __init__(self, tipo, r, c):
             global monedas
             self.tipo = tipo
             self.r = r
             self.c = c
-            self.vida = vida
-            self.coste = coste
-            self.ptsAtaque = ptsAtaque
-            self.velAta = velAta
-            self.img = img
             self.listaDisparos = []
             self.last_fire = 0
             if tipo == "Sand":   # Aquí van las respectivas variables de velocidad de ataque
-                self.cooldown = 5000
+                self.cooldown = sandCooldown
+                self.vida = 7
+                self.coste = 50
+                self.ptsAtaque = 2
+                self.img = rookImgs[0]
             elif tipo == "Rock":
-                self.cooldown = 5000
+                self.cooldown = rockCooldown
+                self.vida = 14
+                self.coste = 100
+                self.ptsAtaque = 4
+                self.img = rookImgs[1]
             elif tipo == "Fire":
-                self.cooldown = 5000
+                self.cooldown = fireCooldown
+                self.vida = 16
+                self.coste = 150
+                self.ptsAtaque = 8
+                self.img = rookImgs[2]
             elif tipo == "Water":
-                self.cooldown = 5000
+                self.cooldown = waterCooldown
+                self.vida = 16
+                self.coste = 150
+                self.ptsAtaque = 8
+                self.img = rookImgs[3]
             monedas -= self.coste
 
 
@@ -375,8 +457,20 @@ def Juego():
                 pass
 
     """
+    Objeto:Bullet
+    Atributos:
+    tipo: string
+    r: int
+    c: int
+    x: int
+    y: int
+    dano: int
+    cambioY: int
     Métodos:
-    redraw: animación y movimiento de la bala
+    draw:
+    Mantiene la bala en patalla
+    trayectoria:
+    Cambia la posición en y de la instancia bullet
     """
     class Bullet():
         def __init__(self, tipo, r, c, dano):
@@ -394,7 +488,6 @@ def Juego():
             self.y = position_fila[self.c]
             self.dano = dano
             self.cambioY = 3
-            self.estado = 1
 
         def draw(self):
             screen.blit(self.img,(int(self.x), int(self.y) ) )
@@ -419,7 +512,6 @@ def Juego():
     #Asigna un 1 a la posicion de la raiz de entrada
     def unoMatriz(r,c):
         matriz[r][c] = 1
-        print(matriz)
 
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
@@ -473,17 +565,16 @@ def Juego():
         for event in pygame.event.get():
             #Mantiene la ventana abierta
             if inGame:
-                print(reloj)
+##                print(reloj)
                 #Generar enemigos aleatoreamente
 
-                enemigosDisponibles = ['arquero', 'escudero', 'lenador', 'canibal']
 
                 relojEnemigo = pygame.time.get_ticks()
                 Generator = pygame.USEREVENT+1
                 pygame.time.set_timer(Generator, 3000)
                 #if reloj % 5 == 0 and aux_reloj == True:
                 #if event.type == Generator:
-                print('reloj',relojEnemigo,' tiempo', tiempoEnemigo, ' enemigo', enemigoCoolDown)
+                #print('reloj',relojEnemigo,' tiempo', tiempoEnemigo, ' enemigo', enemigoCoolDown)
                 if relojEnemigo - tiempoEnemigo > enemigoCoolDown:
                     # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
                     avatarchoice = randint(0, 3)
@@ -493,7 +584,7 @@ def Juego():
                     if matriz[8][x] == 0:
                         lista_enemigos.append(Lenador(x, 8, avatarchoice))
                         matriz[8][x] = 2
-                        print(matriz)
+                        #print(matriz)
 
 
                 if lenadorwalk and len_walk != 0:
@@ -532,32 +623,32 @@ def Juego():
                     #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
                     r = int(math.floor(pos[1]/TAM_CASILLA))
-                    if matriz[r][c] == 1:
+                    if matriz[r][c] == 1: #Quitar rooks
                         for rook in rooks:
                             if rook.r == c and rook.c == r:
                                 rooks.remove(rook)
                                 matriz[r][c] = 0
-                    elif matriz[r][c] == 0:
+                    elif matriz[r][c] == 0: #Colocar rooks
                         if tipo == "Sand" and monedas >= 50:
-                            rooks.append(Rook("Sand", c, r, 7, 50, 2, None, rookImgs[0]))
+                            rooks.append(Rook("Sand", c, r))
                             unoMatriz(r,c)
                         elif tipo == "Rock" and monedas >= 100:
-                            rooks.append(Rook("Rock", c, r, 14, 100, 4, None, rookImgs[1]))
+                            rooks.append(Rook("Rock", c, r))
                             unoMatriz(r,c)
                         elif tipo == "Fire" and monedas >= 150:
-                            rooks.append(Rook("Fire", c, r, 16, 150, 8, None, rookImgs[2]))
+                            rooks.append(Rook("Fire", c, r))
                             unoMatriz(r,c)
                         elif tipo == "Water" and monedas >= 150:
-                            rooks.append(Rook("Water", c, r, 16, 150, 8, None, rookImgs[3]))
+                            rooks.append(Rook("Water", c, r))
                             unoMatriz(r,c)
-                    for coin in coins:
+                    for coin in coins: #Obtener coin
                         if coin.r == r and coin.c == c:
                             monedas += coin.valor
                             coins.remove(coin)
                             matriz[r][c] = 0
 
 
-
+                # Escoger que rook colocar
                 elif botonSand.isOver(pos):
                     tipo = "Sand"
                 elif botonRock.isOver(pos):
@@ -571,6 +662,7 @@ def Juego():
                     inicio()
                 else:
                     pass
+                
             if event.type == pygame.MOUSEMOTION:
                 for boton in listaBotones:
                     if boton.isOver(pos):
@@ -578,7 +670,7 @@ def Juego():
                     else:
                         boton.color = (0,255,0)
         clock.tick(60)
-
+        #Mantener las instancias en pantalla
         screen.fill((200, 200, 200))
         screen.blit(tablero, (370, 0))
         monedasText = font.render("Monedas: " + str(monedas), 1, MORADO_OSCURO, GRIS)
@@ -586,41 +678,42 @@ def Juego():
         screen.blit(jugadorText, (5, 40))
         for boton in listaBotones:
             boton.draw(screen, (0, 0, 0))
-        for rook in rooks:
+            
+        for rook in rooks: #Mantener los rooks en pantalla
             nowRook = pygame.time.get_ticks()
             rook.draw()
-            if nowRook - rook.last_fire >= rook.cooldown:
+            if nowRook - rook.last_fire >= rook.cooldown: #Comprueba si está listo para disparar
                 rook.last_fire = nowRook
                 rook.disparar()
-            if len(rook.listaDisparos) != 0:
-                for proyectil in rook.listaDisparos:
+            if len(rook.listaDisparos) != 0: #Comprueba si hay proyectiles en pantalla
+                for proyectil in rook.listaDisparos: 
                     proyectil.draw()
                     proyectil.trayectoria()
                     posMatriz = matriz[proyectil.r][proyectil.c]
-                    if proyectil.y > 680:  # if posición del proyectil llega a una casilla con monstru:
+                    if proyectil.y > 680:  # Comprueba si la posición de la bala sobrepasa el tablero, si lo hace, la elimina
                         rook.listaDisparos.remove(proyectil)
-                    elif posMatriz == 2:
+                    elif posMatriz == 2:   # Comprueba si la posición de la bala alcanza un enemigo, si lo hace, la elimina
                         rook.listaDisparos.remove(proyectil)
                         """
-                        for enemigo in enemigos:
+                        for enemigo in lista_enemigos:
                             if matriz[enemigo.r][enemigo.c] == posMatriz:
                             enemigo.health -= proyectil.dano
                             if enemigo.health <= 0:
-                                enemigos.remove(enemigo)
+                                lista_enemigos.remove(enemigo)
                         """
 
         nowCoin = pygame.time.get_ticks()
-        print(nowCoin - tiempo)
-        if nowCoin - tiempo >= coinCooldown:
+        if nowCoin - tiempo >= coinCooldown: #Comprueba si se debe generar una moneda
+            # Establece una posición aleatoria en la matriz
             rCoin = random.randint(0,8)
             cCoin = random.randint(0,4)
             tiempo = nowCoin
             coinCooldown = random.choice(coinCooldowns)
-            if matriz[rCoin][cCoin] == 0:
-                coins.append(Coin( rCoin, cCoin , random.choice(coinImgs)))
+            if matriz[rCoin][cCoin] == 0: #Si la posición está vacia, la genera
+                coins.append(Coin( rCoin, cCoin))
                 matriz[rCoin][cCoin] = 3
 
-        for coin in coins:
+        for coin in coins: #Mantiene el dibujo de la moneda en pantalla
             coin.draw()
 
         for elem in avatar.list_attack:
