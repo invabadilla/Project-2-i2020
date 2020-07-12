@@ -39,7 +39,7 @@ pygame.display.set_icon(icon)
 
 #Clase botones
 class Button():
-    def __init__(self, color, x, y, width, height, img ,text=''):
+    def __init__(self, color, x,y,width,height, img ,text=''):
         self.color = color
         self.x = x
         self.y = y
@@ -246,7 +246,7 @@ def Juego():
     tipo = 0 #Variable que determina que rook colocar
     global cooldownTracker
     cooldownTracker = 0
-
+    
 
     #Texto de interfaz
     font = pygame.font.SysFont("Neuropol X Rg", 30)
@@ -381,11 +381,8 @@ def Juego():
     #Mantiene los botones y objetos en pantalla
     def loopVentana():
         global lenadorwalk, len_walk, reloj, lenadorattack, len_attack
-        screen.blit(tablero, (370, 0))
 
-        screen.fill(GRIS)
-        screen.blit(tablero, (373, -17))
-        avatar.Draw(screen)
+        #avatar.Draw(screen)
         monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO,GRIS)
         screen.blit(monedasText,(5,10))
         screen.blit(jugadorText,(5,40))
@@ -398,12 +395,13 @@ def Juego():
             if now - rook.last_fire >= rook.cooldown:
                 rook.last_fire = now
                 rook.disparar()
-        if len(rook.listaDisparos) != 0:
-            for proyectil in rook.listaDisparos:
-                proyectil.draw()
-                proyectil.trayectoria()
-                if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
-                    rook.listaDisparos.remove(proyectil)
+            if len(rook.listaDisparos) != 0:
+                for proyectil in rook.listaDisparos:
+                    proyectil.draw()
+                    proyectil.trayectoria()
+                    if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
+                        rook.listaDisparos.remove(proyectil)
+
 ##        for bullet in bullets:
 ##            bullet.redraw()
         reloj = pygame.time.get_ticks()//1000
@@ -422,12 +420,10 @@ def Juego():
 
         screen.fill((200, 200, 200))
         avatar = Lenador(1,8, 2)  # llamar al lenador
-       
 
 
 
-
-    #avatar = Lenador()  # llamar al lenador
+    avatar = Lenador(4, 8, 3)  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
 
     clock = pygame.time.Clock()
@@ -445,7 +441,7 @@ def Juego():
         clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
         avatar.Move()
-        loopVentana()
+
 
         #Mantiene la ventana abierta
         if inGame:
@@ -545,6 +541,26 @@ def Juego():
                         boton.color = (0,255,0)
         clock.tick(60)
 
+        screen.fill((200, 200, 200))
+        screen.blit(tablero, (370, 0))
+        monedasText = font.render("Monedas: " + str(monedas), 1, MORADO_OSCURO, GRIS)
+        screen.blit(monedasText, (5, 10))
+        screen.blit(jugadorText, (5, 40))
+        for boton in listaBotones:
+            boton.draw(screen, (0, 0, 0))
+        for rook in rooks:
+            now = pygame.time.get_ticks()
+            rook.draw(screen)
+            rook.atacar()
+            if now - rook.last_fire >= rook.cooldown:
+                rook.last_fire = now
+                rook.disparar()
+            if len(rook.listaDisparos) != 0:
+                for proyectil in rook.listaDisparos:
+                    proyectil.draw()
+                    proyectil.trayectoria()
+                    if proyectil.y > 700:  # if posición del proyectil llega a una casilla con monstru:
+                        rook.listaDisparos.remove(proyectil)
         for elem in avatar.list_attack:
             elem.Draw(screen)
             elem.trayectoria()
@@ -558,8 +574,6 @@ def Juego():
                 x.trayectoria()
                 if x.rect.top < 1:
                     x.list_attack.remove(x)
-
-
 
 
         pygame.display.update()
