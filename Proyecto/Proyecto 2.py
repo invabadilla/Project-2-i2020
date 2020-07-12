@@ -25,7 +25,9 @@ MORADO_OSCURO = (131,60,150,59)
 GRIS = (214,202,252,99)
 AMARILLO = (253,218,76,99)
 CAFE = (201,184,141,79)
-tablero = pygame.image.load('lawn2.png')
+tablero = pygame.image.load('lawn2.png') #Que hace esto aquí? XD
+fontTitulo = pygame.font.SysFont("Neuropol X Rg", 30)
+font = pygame.font.SysFont("Neuropol X Rg", 20)
 
 #Ventana de Inicio
 (width, height) = (900, 700)
@@ -77,8 +79,8 @@ class Button():
 
 
 
-def mainMenu():
-
+def inicio():
+    
     #Instancias de botones
     botonPlay = Button(MORADO_CLARO,155,100,100,70,None,"Play")
     botonSalon = Button(MORADO_CLARO,80,200,260,70,None,"Salon de la fama")
@@ -87,20 +89,31 @@ def mainMenu():
     botonCreditos = Button(MORADO_CLARO,130,500,150,70,None,"Creditos")
     botonExit = Button(MORADO_CLARO,170,600,80,70,None,"Exit")
     listaBotones = [botonPlay,botonSalon,botonConfig,botonAyuda,botonCreditos,botonExit]
+    #Variables para desplegar las diferentes secciones
+    ayuda = False
+    config = False
+    salon = False
+    creditos = False
+    ventanas = [ayuda, config, salon, creditos]
+    #Textos
+    comoJugarText = fontTitulo.render("¿Como Jugar?", 1, MORADO_OSCURO)
+    ayudaText = font.render("El juego es un tower defense de estrategia en el enemigos intentan llegar a la parte superior de la pantalla, \n para evitarlo debes colocar rooks que destrocen a los enemigos, pero no todo es tan sencillo, debes conseguir monedas para constuir cada rook, ganas al derrotar a todos los enemigos de la zona", 1, MORADO_OSCURO)
+    """----------"""
+    running = True
 
-    # Loop del juego
-    def loopVentana():
+    while running:
         screen.fill(GRIS)
         for boton in listaBotones:
             boton.draw(screen,(0,0,0))
-
-    running = True
-    while running:
-        #Mantiene el color y los objetos en la ventana
-        loopVentana()
-        pygame.display.update()
-
-        #Mantiene la ventana abierta
+        if salon:
+            pass
+        elif ayuda:
+            screen.blit(comoJugarText, (300, 10))
+            screen.blit(ayudaText, (300, 10))
+        elif config:
+            pass
+        elif creditos:
+            pass
         for event in pygame.event.get():
             pos = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
@@ -108,26 +121,38 @@ def mainMenu():
                 pygame.quit()
                 sys.exit()      #Cerrar pygame sin ventana de error
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if botonPlay.isOver(pos):
-                    running = False
-                    Juego()
-
             if event.type == pygame.MOUSEMOTION:
                 for boton in listaBotones:
                     if boton.isOver(pos):
                         boton.color = CAFE
                     else:
                         boton.color = AMARILLO
-
-def Ayuda():
-    running = True
-    while running:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if botonPlay.isOver(pos):
+                    running = False
+                    Juego()
+                elif botonSalon.isOver(pos):
+                    for ventana in ventanas:
+                        ventana = False
+                    salon = True
+                elif botonConfig.isOver(pos):
+                    for ventana in ventanas:
+                        ventana = False
+                    config = True
+                elif botonAyuda.isOver(pos):
+                    for ventana in ventanas:
+                        ventana = False
+                    ayuda = True
+                elif botonCreditos.isOver(pos):
+                    for ventana in ventanas:
+                        ventana = False
+                    creditos = True
+                elif botonExit.isOver(pos):
+                    running = False
+                    pygame.quit()
+                    sys.exit()  
         pygame.display.update()
 
-        #Mantiene la ventana abierta
-        for event in pygame.event.get():
-            pass
 
 
 
@@ -248,7 +273,6 @@ def Juego():
 
 
     #Texto de interfaz
-    font = pygame.font.SysFont("Neuropol X Rg", 30)
     monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
     jugadorText = font.render("Jugador: "+str(jugador), 1, MORADO_OSCURO)
     #Imágenes
@@ -513,7 +537,7 @@ def Juego():
                     tipo = "Water"
                 elif botonQuit.isOver(pos):
                     running = False
-                    mainMenu()
+                    inicio()
                 else:
                     pass
             if event.type == pygame.MOUSEMOTION:
@@ -541,7 +565,6 @@ def Juego():
                 for proyectil in rook.listaDisparos:
                     proyectil.draw()
                     proyectil.trayectoria()
-                    print (matriz[proyectil.r][proyectil.c])
                     posMatriz = matriz[proyectil.r][proyectil.c]
                     if proyectil.y > 680:  # if posición del proyectil llega a una casilla con monstru:
                         rook.listaDisparos.remove(proyectil)
@@ -556,6 +579,7 @@ def Juego():
                         """
                         
         nowCoin = pygame.time.get_ticks()
+        print(nowCoin - tiempo)
         if nowCoin - tiempo >= coinCooldown:
             rCoin = random.randint(0,8)
             cCoin = random.randint(0,4)
@@ -611,11 +635,11 @@ def Juego():
 ##
 ##        screen.blit(fondo,(0,0))
 ##        screen.blit(player.image, player.rect)
-Juego()
+##Juego()
         #pygame.display.flip()
 
         
 
-mainMenu()  
+inicio()  
     
 
