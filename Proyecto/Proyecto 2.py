@@ -378,9 +378,12 @@ def Juego():
             self.posImagen = 0
             self.tiempoCambio = 1
             self.imagenLenador = self.image
-            self.rect = self.imagenLenador.get_rect()
-            self.rect.centerx = position_columna[self.x]
-            self.rect.centery = position_fila[self.y]
+            #self.rect = self.imagenLenador.get_rect()
+            #self.rect.centerx = position_columna[self.x]
+            #self.rect.centery = position_fila[self.y]
+            self.posx = position_columna[self.x] - 15
+            self.posy = position_fila[self.y]
+
             self.list_attack = []
             self.speed = 1
 
@@ -448,13 +451,13 @@ def Juego():
                 self.avance(aux_y, screen)
                     
         def avance(self, y, screen):
-            while self.rect.centery > position_fila[y]:
+            while self.posy > position_fila[y]:
                 self.posImagen += 1
                 self.tiempoCambio += 1
                 if self.posImagen > len(self.walk)-1:
                     self.posImagen = 0
 
-                self.rect.centery -= self.speed
+                self.posy -= self.speed
                 self.Draw(screen)
                 clock.tick(50)
             self.y  -= 1
@@ -467,7 +470,8 @@ def Juego():
         def Draw(self, superficie):
             #if self.walkCount
             self.imagenLenador = self.image
-            superficie.blit(self.imagenLenador, self.rect)
+            print(self.posx, self.posy)
+            superficie.blit(self.imagenLenador, (self.posx, self.posy))
 
     class Hacha(pygame.sprite.Sprite):
         def __init__(self, posx, posy, ruta):
