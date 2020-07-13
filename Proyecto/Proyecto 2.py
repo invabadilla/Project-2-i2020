@@ -498,7 +498,7 @@ def Juego():
         def Draw(self, superficie):
             #if self.walkCount
             self.imagenLenador = self.image
-            print(self.posx, self.posy)
+##            print(self.posx, self.posy)
             superficie.blit(self.imagenLenador, (self.posx, self.posy))
 
     class Hacha(pygame.sprite.Sprite):
@@ -722,12 +722,6 @@ def Juego():
             if matriz[rook.c][rook.r] == 0:
                 rooks.remove(rook)
 
-        for elem in avatar.list_attack:
-            elem.Draw(screen)
-            elem.trayectoria()
-            if elem.rect.top < 1:
-                avatar.list_attack.remove(elem)
-
         for elem in lista_enemigos:
             elem.Draw(screen)
             for x in elem.list_attack:
@@ -739,24 +733,6 @@ def Juego():
 
         pygame.display.update()
 
-
-
-##        player = player1.Lenador((random.choice(position_fila), 654))
-##        def create_avatar(id):
-##           player = player1.Lenador((random.choice(position_fila), 654))
-##           lista_avatar.append(id)
-##
-##           time.sleep(10)
-##           create_avatar(id + 1)
-
-##
-##        def create_avatar():
-##           player = player1.Lenador((random.choice(position_fila), 654))
-##           lista_avatar.append(player)
-##
-##
-##        screen.blit(fondo,(0,0))
-##        screen.blit(player.image, player.rect)
 ##Juego()
 
 
