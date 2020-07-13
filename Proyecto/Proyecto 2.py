@@ -95,8 +95,6 @@ class Button():
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
 
-
-
 def inicio():
     
     #Instancias de botones
@@ -252,13 +250,13 @@ def Juego():
     waterCooldown = 6000
     #Velocidad de avance y ataque de los avatars
     #Arquero
-    a = 0
+    a = 3
     b = 4
     #Escudero
     i = 4
     d = 5
     #Lenador
-    e = 3
+    e = 7
     f = 4
     #Canibal
     g = 4
@@ -278,7 +276,7 @@ def Juego():
             elif matriz[n][m] == 4:
                 rook.append(Rook("Water",n,m))
 
-    archivo = open("Configuracion.txt","r")
+    '''archivo = open("Configuracion.txt","r")
     archivo.seek(0)
     a = int(archivo.read(1))
     b = int(archivo.read(1))
@@ -288,7 +286,7 @@ def Juego():
     f = int(archivo.read(1))
     g = int(archivo.read(1))
     h = int(archivo.read(1))
-    archivo.close()
+    archivo.close()'''
 
     """
     Objeto: Coin
@@ -391,42 +389,67 @@ def Juego():
             self.y = y
             self.kind = kind
             if self.kind == 0:
-                self.image = pygame.image.load('Images/a_c1.png')
+                self.image = pygame.image.load('Images/a_a1.png')
+                self.walk = [pygame.image.load('Images/a_c1.png'), pygame.image.load('Images/a_c2.png'),
+                             pygame.image.load('Images/a_c3.png'), pygame.image.load('Images/a_c4.png'),
+                             pygame.image.load('Images/a_c1.png'), pygame.image.load('Images/a_c2.png'),
+                             pygame.image.load('Images/a_c3.png'), pygame.image.load('Images/a_c4.png')]
             elif self.kind == 1:
-                self.image = pygame.image.load('Images/e_c1.png')
+                self.image = pygame.image.load('Images/e_a1.png')
+                self.walk = [pygame.image.load('Images/e_c1.png'), pygame.image.load('Images/e_c2.png'),
+                             pygame.image.load('Images/e_c3.png'),
+                             pygame.image.load('Images/e_c4.png'), pygame.image.load('Images/e_c5.png'),
+                             pygame.image.load('Images/e_c6.png'),
+                             pygame.image.load('Images/e_c7.png'), pygame.image.load('Images/e_c8.png'),
+                             pygame.image.load('Images/e_c9.png'),
+                             pygame.image.load('Images/e_c10.png')]
             elif self.kind == 2:
-                self.image = pygame.image.load('Images/le_c1.png')
+                self.image = pygame.image.load('Images/l_a1.png')
+                self.walk = [pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'),
+                             pygame.image.load('Images/le_c3.png'),
+                             pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'),
+                             pygame.image.load('Images/le_c6.png'),
+                             pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'),
+                             pygame.image.load('Images/le_c9.png'),
+                             pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'),
+                             pygame.image.load('Images/le_c12.png'),
+                             pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
             elif self.kind == 3:
-                self.image = pygame.image.load('Images/c_c1.png')
-            self.walk = []  # [pygame.image.load('Images/le_c1.png'), pygame.image.load('Images/le_c2.png'), pygame.image.load('Images/le_c3.png'),
-            # pygame.image.load('Images/le_c4.png'), pygame.image.load('Images/le_c5.png'), pygame.image.load('Images/le_c6.png'),
-            # pygame.image.load('Images/le_c7.png'), pygame.image.load('Images/le_c8.png'), pygame.image.load('Images/le_c9.png'),
-            # pygame.image.load('Images/le_c10.png'), pygame.image.load('Images/le_c11.png'), pygame.image.load('Images/le_c12.png'),
-            # pygame.image.load('Images/le_c13.png'), pygame.image.load('Images/le_c14.png')]
+                self.image = pygame.image.load('Images/c_a1.png')
+                self.walk = [pygame.image.load('Images/c_c1.png'), pygame.image.load('Images/c_c2.png'),
+                             pygame.image.load('Images/c_c3.png'),
+                             pygame.image.load('Images/c_c4.png'), pygame.image.load('Images/c_c5.png'),
+                             pygame.image.load('Images/c_c6.png'),
+                             pygame.image.load('Images/c_c7.png'), pygame.image.load('Images/c_c8.png'),
+                             pygame.image.load('Images/c_c9.png'),
+                             pygame.image.load('Images/c_c10.png'), pygame.image.load('Images/c_c11.png'),
+                             pygame.image.load('Images/c_c12.png')]
+
             self.posImagen = 0
             self.tiempoCambio = 1
-            self.imagenLenador = self.image
-            #self.rect = self.imagenLenador.get_rect()
-            #self.rect.centerx = position_columna[self.x]
-            #self.rect.centery = position_fila[self.y]
-            self.posx = position_columna[self.x] - 15
-            self.posy = position_fila[self.y]
+            self.imagenLenador = self.walk[self.posImagen]
 
+            self.lenadorattack = False
+            self.len_attack = 1
             self.list_attack = []
-            self.speed = 1
 
-            self.lenadorwalk = False
-            self.len_walk = 1
+            self.r = x
+            self.c = y
+            self.cont = 0
+            self.x = position_columna[self.r] - 15
+            self.y = position_fila[self.c]
+            self.cambioY = 3
 
         def Move(self):
+
             if self.kind == 0:
                 if reloj % a == 0:  # Avance del arquero
-                    self.lenadorwalk = True
-                    self.entre()
-                    self.len_walk = 0
+                    if self.cont == 0:
+                        self.c -= 1
+                        self.cont = 1
                 else:
-                    self.lenadorwalk = False
-                    self.len_walk = 1
+                    self.cont = 0
+                    self.imagenLenador = self.image
                 if reloj % b == 0:  # Ataque del arquero
                     self.lenadorattack = True
 
@@ -435,12 +458,12 @@ def Juego():
                     self.len_attack = 1
             elif self.kind == 1:
                 if reloj % i == 0:  # Avance del escudero
-                    self.lenadorwalk = True
-                    self.entre()
-                    self.len_walk = 0
+                    if self.cont == 0:
+                        self.c -= 1
+                        self.cont = 1
                 else:
-                    self.lenadorwalk = False
-                    self.len_walk = 1
+                    self.cont = 0
+                    self.imagenLenador = self.image
                 if reloj % d == 0:  # Ataque del escudero
                     self.lenadorattack = True
                 else:
@@ -448,12 +471,12 @@ def Juego():
                     self.len_attack = 1
             elif self.kind == 2:
                 if reloj % e == 0:  # Avance del lenador
-                    self.lenadorwalk = True
-                    self.entre()
-                    self.len_walk = 0
+                    if self.cont == 0:
+                        self.c -= 1
+                        self.cont = 1
                 else:
-                    self.lenadorwalk = False
-                    self.len_walk = 1
+                    self.cont = 0
+                    self.imagenLenador = self.image
                 if reloj % f == 0:  # Ataque del lenador
                     self.lenadorattack = True
                 else:
@@ -461,45 +484,38 @@ def Juego():
                     self.len_attack = 1
             elif self.kind == 3:
                 if reloj % g == 0:  # Avance del canibal
-                    self.lenadorwalk = True
-                    self.entre()
-                    self.len_walk = 0
+                    if self.cont == 0:
+                        self.c -= 1
+                        self.cont = 1
                 else:
-                    self.lenadorwalk = False
-                    self.len_walk = 1
+                    self.imagenLenador = self.image
+                    self.cont = 0
                 if reloj % h == 0:  # Ataque del canibal
                     self.lenadorattack = True
                 else:
                     self.lenadorattack = False
                     self.len_attack = 1
 
-        def entre (self):
-            if self.lenadorwalk and self.len_walk != 0:
-                aux_y = self.y - 1
-                self.avance(aux_y, screen)
+        def draw(self):
+            screen.blit(self.imagenLenador, (int(self.x), int(self.y)))
 
-        def avance(self, y, screen):
-            while self.posy > position_fila[y]:
+        def trayectoria(self):
+            print(self.c, position_fila[self.c -1], reloj, a)
+            if self.y > position_fila[self.c-1]:
                 self.posImagen += 1
                 self.tiempoCambio += 1
                 if self.posImagen > len(self.walk)-1:
                     self.posImagen = 0
-
-                self.posy -= self.speed
-                self.Draw(screen)
-                clock.tick(50)
-            self.y  -= 1
+                self.imagenLenador = self.walk[self.posImagen]
+                x = int(math.floor(self.y / TAM_CASILLA))
+                self.r = x
+                #self.c = y
+                self.y -= self.cambioY
 
         def Attack(self, x, y):
             myAtaque = Hacha(x,y,'Images/h1.png')
             self.list_attack.append(myAtaque)
             #print(len(self.list_attack))
-
-        def Draw(self, superficie):
-            #if self.walkCount
-            self.imagenLenador = self.image
-##            print(self.posx, self.posy)
-            superficie.blit(self.imagenLenador, (self.posx, self.posy))
 
     class Hacha(pygame.sprite.Sprite):
         def __init__(self, posx, posy, ruta):
@@ -560,11 +576,6 @@ def Juego():
             self.c = c
             self.y += self.cambioY
 
-
-
-
-    inGame = True  # si aun el jugador sigue con vida
-
     clock = pygame.time.Clock()
 
     enemigoCoolDown = 5000
@@ -576,39 +587,31 @@ def Juego():
         global lenadorwalk, len_walk, listaHacha, lenadorattack, len_attack, lista_enemigos
         reloj = pygame.time.get_ticks()//1000
 
-        for elem in lista_enemigos:
-            elem.Move()
-            elem.Draw(screen)
-            for x in elem.list_attack:
-                x.trayectoria()
-                x.Draw(screen)
-                if x.rect.top < 1:
-                    elem.list_attack.remove(x)
 
-        global lenadorwalk, len_walk
-        clock.tick(30)
-        keys = pygame.key.get_pressed() #si una tecla es presionada
+        #clock.tick(30)
+        # Generar enemigos aleatoreamente
+        relojEnemigo = pygame.time.get_ticks()
+
+        if relojEnemigo - tiempoEnemigo > enemigoCoolDown:
+            # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
+            avatarchoice = randint(0, 3)
+            x = randint(0, 4)
+            tiempoEnemigo = relojEnemigo
+            # enemigoCoolDown = random.choice(enemigoCoolDowns)
+            lista_enemigos.append(Lenador(x, 8, avatarchoice))
+            if matriz[8][x] == 0:
+                if avatarchoice == 0:
+                    matriz[8][x] = 5
+                elif avatarchoice == 1:
+                    matriz[8][x] = 6
+                elif avatarchoice == 2:
+                    matriz[8][x] = 7
+                elif avatarchoice == 3:
+                    matriz[8][x] = 8
 
 
         for event in pygame.event.get():
             #Mantiene la ventana abierta
-            if inGame:
-                #Generar enemigos aleatoreamente
-
-
-                relojEnemigo = pygame.time.get_ticks()
-
-                if relojEnemigo - tiempoEnemigo > enemigoCoolDown:
-                    # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
-                    avatarchoice = randint(0, 3)
-                    x = randint(0, 4)
-                    tiempoEnemigo = relojEnemigo
-                    #enemigoCoolDown = random.choice(enemigoCoolDowns)
-                    if matriz[8][x] == 0:
-                        lista_enemigos.append(Lenador(x, 8, avatarchoice))
-                        matriz[8][x] = 2
-
-
 
             pos = pygame.mouse.get_pos()
 
@@ -723,13 +726,14 @@ def Juego():
                 rooks.remove(rook)
 
         for elem in lista_enemigos:
-            elem.Draw(screen)
+            elem.Move()
+            elem.trayectoria()
+            elem.draw()
             for x in elem.list_attack:
-                x.Draw(screen)
                 x.trayectoria()
+                x.Draw(screen)
                 if x.rect.top < 1:
                     elem.list_attack.remove(x)
-
 
         pygame.display.update()
 
