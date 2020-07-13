@@ -267,6 +267,9 @@ def Juego():
         matriz = np.load("matrizJuego.npy")
     else:
         matriz = np.zeros((9,5))
+        rooks = []
+        coins = []
+        lista_enemigos = []
     for n in range(0,9):
         for m in range(0,5):
             if matriz[n][m] == 1:
@@ -311,7 +314,7 @@ def Juego():
             elif self.img == coinImgs[2]:
                 self.valor = 100
         def draw(self):
-            screen.blit(self.img, (position_columna[self.c]-30,position_fila[self.r]-15))
+            screen.blit(self.img, (position_columna[self.c]-30,position_fila[self.r]-35))
 
     """
     Objetos: Rook
@@ -487,7 +490,7 @@ def Juego():
 
                 self.posy -= self.speed
                 self.Draw(screen)
-                clock.tick(50)
+##                clock.tick(50)
             self.y  -= 1
 
         def Attack(self, x, y):
@@ -571,9 +574,9 @@ def Juego():
     enemigoCoolDowns = [3000, 4000, 5000]
     tiempoEnemigo = pygame.time.get_ticks()
 
-
+#-------------------loop principal------------------------"""
     while running:
-        global lenadorwalk, len_walk, listaHacha, lenadorattack, len_attack, lista_enemigos
+        global lenadorwalk, len_walk, listaHacha, lenadorattack, len_attack
         reloj = pygame.time.get_ticks()//1000
 
         for elem in lista_enemigos:
@@ -586,7 +589,7 @@ def Juego():
                     elem.list_attack.remove(x)
 
         global lenadorwalk, len_walk
-        clock.tick(30)
+##        clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
 
 
@@ -612,21 +615,17 @@ def Juego():
 
             pos = pygame.mouse.get_pos()
 
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-                sys.exit()
-
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if pos[0] > 400 and pos[0] < 785:
-                    print(pos)
+                if pos[0] > 400 and pos[0] < 785 and pos[1] > 0 and pos[1] < 700:
                     #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
                     r = int(math.floor(pos[1]/TAM_CASILLA))
+                    print(r,c)
                     if matriz[r][c] == 1 or matriz[r][c] == 2 or matriz[r][c] == 3 or matriz[r][c] == 4: #Quitar rooks
                         for rook in rooks:
                             if rook.r == c and rook.c == r:
+                                rooks.remove(rook)
                                 matriz[r][c] = 0
                         pass
                     elif matriz[r][c] == 0: #Colocar rooks
@@ -674,7 +673,7 @@ def Juego():
 
         #Mantener las instancias en pantalla
         screen.fill((200, 200, 200))
-        screen.blit(tablero, (370, 0))
+        screen.blit(tablero, (370, -20))
         monedasText = font.render("Monedas: " + str(monedas), 1, MORADO_OSCURO, (200,200,200))
         screen.blit(monedasText, (5, 10))
         screen.blit(jugadorText, (5, 40))
@@ -717,10 +716,6 @@ def Juego():
 
         for coin in coins: #Mantiene el dibujo de la moneda en pantalla
             coin.draw()
-
-        for rook in rooks: # Verifica si no tiene que eliminar un rook
-            if matriz[rook.c][rook.r] == 0:
-                rooks.remove(rook)
 
         for elem in lista_enemigos:
             elem.Draw(screen)
