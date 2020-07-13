@@ -8,6 +8,7 @@ import time
 pygame.init()
 
 #Variables globales
+continuar = False
 ancho = 900
 alto = 700
 fila = [145, 180, 220, 260, 300, 340, 375, 415, 435]
@@ -18,20 +19,6 @@ len_attack = 1
 len_walk = 1
 reloj = 0
 lista_enemigos = []
-
-#Velocidad de avance y ataque de los avatars 
-#Arquero
-a = 3
-b = 4
-#Escudero
-i = 4
-d = 5
-#Lenador
-e = 3
-f = 4
-#Canibal
-g = 4
-h = 5
 
 #Colores
 MORADO_CLARO = (184,112,204,80)
@@ -113,13 +100,14 @@ class Button():
 def inicio():
     
     #Instancias de botones
-    botonPlay = Button(MORADO_CLARO,155,100,100,70,None,"Play")
+    botonPlay = Button(MORADO_CLARO,155,20,100,70,None,"Play")
+    botonContinuar = Button(MORADO_CLARO,90,100,240,70,None,"Continuar Partida")
     botonSalon = Button(MORADO_CLARO,80,200,260,70,None,"Salon de la fama")
     botonConfig = Button(MORADO_CLARO,100,300,220,70,None,"Configuracion")
     botonAyuda = Button(MORADO_CLARO,160,400,110,70,None,"Ayuda")
     botonCreditos = Button(MORADO_CLARO,130,500,150,70,None,"Creditos")
     botonExit = Button(MORADO_CLARO,170,600,80,70,None,"Exit")
-    listaBotones = [botonPlay,botonSalon,botonConfig,botonAyuda,botonCreditos,botonExit]
+    listaBotones = [botonPlay,botonContinuar,botonSalon,botonConfig,botonAyuda,botonCreditos,botonExit]
     #Variables para desplegar las diferentes secciones
     ayuda = False
     config = False
@@ -186,6 +174,9 @@ def inicio():
                 if botonPlay.isOver(pos):
                     running = False
                     Juego()
+                elif botonContinuar.isOver(pos):
+                    running = False
+                    continuar = True
                 elif botonSalon.isOver(pos):
                     for ventana in ventanas:
                         ventana = False
@@ -222,14 +213,11 @@ def Juego():
     global reloj
     reloj = pygame.time.get_ticks()//1000
     running = True
-    matriz = np.zeros((9,5))
-    matriz[3][3] = 2 # número de prueba
     TAM_CASILLA = 77 #Tamaño de cada casilla
     global monedas
-    monedas = 500 #Monedas del jugador
+    monedas = 5000 #Monedas del jugador
     jugador = "Engret y LLordi" #Nombre del jugador
     tipo = 0 #Variable que determina que rook colocar
-
 
     #Texto de interfaz
     monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
@@ -262,6 +250,46 @@ def Juego():
     rockCooldown = 5000
     fireCooldown = 6000
     waterCooldown = 6000
+    #Velocidad de avance y ataque de los avatars 
+    #Arquero
+    a = 0
+    b = 4
+    #Escudero
+    i = 4
+    d = 5
+    #Lenador
+    e = 3
+    f = 4
+    #Canibal
+    g = 4
+    h = 5
+    if continuar:
+        matriz = np.load("matrizJuego.npy")
+    else:
+        matriz = np.zeros((9,5))
+    for n in range(0,9):
+        for m in range(0,5):
+            if matriz[n][m] == 1:
+                rook.append(Rook("Sand",n,m))
+            elif matriz[n][m] == 2:
+                rook.append(Rook("Rock",n,m))
+            elif matriz[n][m] == 3:
+                rook.append(Rook("Fire",n,m))
+            elif matriz[n][m] == 4:
+                rook.append(Rook("Water",n,m))
+                
+    archivo = open("Configuracion.txt","r")
+    archivo.seek(0)
+    a = int(archivo.read(1))
+    b = int(archivo.read(1))
+    i = int(archivo.read(1))
+    d = int(archivo.read(1))
+    e = int(archivo.read(1))
+    f = int(archivo.read(1))
+    g = int(archivo.read(1))
+    h = int(archivo.read(1))
+    archivo.close()
+    
     """
     Objeto: Coin
     Atributos:
@@ -345,7 +373,7 @@ def Juego():
             ataque = False
             matrizTrans = np.transpose(matriz) # Transposición de la matriz para que sea más facil verificar la columna
             for elem in matrizTrans[self.r]:
-                if elem ==  2: #if elem es igual a monsturo*
+                if elem ==  5 or elem == 6 or elem == 7 or elem ==8 : #if elem es igual a monsturo*
                     ataque = True
                     break
             if ataque == True:
@@ -519,11 +547,6 @@ def Juego():
             screen.blit(self.imagenHacha, self.rect)
 
 
-    #Asigna un 1 a la posicion de la raiz de entrada
-    def unoMatriz(r,c):
-        matriz[r][c] = 1
-
-
     avatar = Lenador(4, 8, 3)  # llamar al lenador
     inGame = True  # si aun el jugador sigue con vida
 
@@ -586,11 +609,6 @@ def Juego():
 
             pos = pygame.mouse.get_pos()
 
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-                sys.exit()
-
             if inGame:
                 if keys[pygame.K_DOWN]:
                     #screen.blit(tablero, (0, 0))
@@ -607,31 +625,30 @@ def Juego():
                     #Valores en la matriz, colum y raw
                     c = int(math.floor((pos[0] - 400)/TAM_CASILLA))
                     r = int(math.floor(pos[1]/TAM_CASILLA))
-                    if matriz[r][c] == 1: #Quitar rooks
+                    if matriz[r][c] == 1 or matriz[r][c] == 2 or matriz[r][c] == 3 or matriz[r][c] == 4: #Quitar rooks
                         for rook in rooks:
                             if rook.r == c and rook.c == r:
-                                rooks.remove(rook)
                                 matriz[r][c] = 0
+                        pass
                     elif matriz[r][c] == 0: #Colocar rooks
                         if tipo == "Sand" and monedas >= 50:
+                            matriz[r][c] = 1
                             rooks.append(Rook("Sand", c, r))
-                            unoMatriz(r,c)
                         elif tipo == "Rock" and monedas >= 100:
+                            matriz[r][c] = 2
                             rooks.append(Rook("Rock", c, r))
-                            unoMatriz(r,c)
                         elif tipo == "Fire" and monedas >= 150:
+                            matriz[r][c] = 3
                             rooks.append(Rook("Fire", c, r))
-                            unoMatriz(r,c)
                         elif tipo == "Water" and monedas >= 150:
+                            matriz[r][c] = 4
                             rooks.append(Rook("Water", c, r))
-                            unoMatriz(r,c)
+                            print(matriz)
                     for coin in coins: #Obtener coin
                         if coin.r == r and coin.c == c:
                             monedas += coin.valor
-                            coins.remove(coin)
                             matriz[r][c] = 0
-
-
+                            coins.remove(coin)
                 # Escoger que rook colocar
                 elif botonSand.isOver(pos):
                     tipo = "Sand"
@@ -643,6 +660,8 @@ def Juego():
                     tipo = "Water"
                 elif botonQuit.isOver(pos):
                     running = False
+                    np.save("matrizJuego.npy",matriz)
+                    matriz = np.zeros((9,5))
                     inicio()
                 else:
                     pass
@@ -676,7 +695,7 @@ def Juego():
                     posMatriz = matriz[proyectil.r][proyectil.c]
                     if proyectil.y > 680:  # Comprueba si la posición de la bala sobrepasa el tablero, si lo hace, la elimina
                         rook.listaDisparos.remove(proyectil)
-                    elif posMatriz == 2:   # Comprueba si la posición de la bala alcanza un enemigo, si lo hace, la elimina
+                    elif posMatriz == 5 or posMatriz == 6 or posMatriz == 7 or posMatriz == 8:   # Comprueba si la posición de la bala alcanza un enemigo, si lo hace, la elimina
                         rook.listaDisparos.remove(proyectil)
                         """
                         for enemigo in lista_enemigos:
@@ -695,10 +714,14 @@ def Juego():
             coinCooldown = random.choice(coinCooldowns)
             if matriz[rCoin][cCoin] == 0: #Si la posición está vacia, la genera
                 coins.append(Coin( rCoin, cCoin))
-                matriz[rCoin][cCoin] = 3
+                matriz[rCoin][cCoin] = 9
 
         for coin in coins: #Mantiene el dibujo de la moneda en pantalla
             coin.draw()
+
+        for rook in rooks: # Verifica si no tiene que eliminar un rook
+            if matriz[rook.c][rook.r] == 0:
+                rooks.remove(rook)
 
         for elem in avatar.list_attack:
             elem.Draw(screen)
