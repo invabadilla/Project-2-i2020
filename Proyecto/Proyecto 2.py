@@ -250,7 +250,7 @@ def Juego():
     rockCooldown = 5000
     fireCooldown = 6000
     waterCooldown = 6000
-    #Velocidad de avance y ataque de los avatars 
+    #Velocidad de avance y ataque de los avatars
     #Arquero
     a = 0
     b = 4
@@ -277,7 +277,7 @@ def Juego():
                 rook.append(Rook("Fire",n,m))
             elif matriz[n][m] == 4:
                 rook.append(Rook("Water",n,m))
-                
+
     archivo = open("Configuracion.txt","r")
     archivo.seek(0)
     a = int(archivo.read(1))
@@ -289,7 +289,7 @@ def Juego():
     g = int(archivo.read(1))
     h = int(archivo.read(1))
     archivo.close()
-    
+
     """
     Objeto: Coin
     Atributos:
@@ -384,7 +384,7 @@ def Juego():
 
     class Lenador(pygame.sprite.Sprite):  # Clase para los lenadores
         global position_fila, position_columna, a, b, i, d, e, f, g, h
-
+        clock = pygame.time.Clock()
         def __init__(self, x, y, kind):
             pygame.sprite.Sprite.__init__(self)
             self.x = x
@@ -406,26 +406,38 @@ def Juego():
             self.posImagen = 0
             self.tiempoCambio = 1
             self.imagenLenador = self.image
-            self.rect = self.imagenLenador.get_rect()
-            self.rect.centerx = position_columna[self.x]
-            self.rect.centery = position_fila[self.y]
+            #self.rect = self.imagenLenador.get_rect()
+            #self.rect.centerx = position_columna[self.x]
+            #self.rect.centery = position_fila[self.y]
+            self.posx = position_columna[self.x] - 15
+            self.posy = position_fila[self.y]
+
             self.list_attack = []
+            self.speed = 1
+
+            self.lenadorwalk = False
+            self.len_walk = 1
 
         def Move(self):
             if self.kind == 0:
                 if reloj % a == 0:  # Avance del arquero
                     self.lenadorwalk = True
+                    self.entre()
+                    self.len_walk = 0
                 else:
                     self.lenadorwalk = False
                     self.len_walk = 1
                 if reloj % b == 0:  # Ataque del arquero
                     self.lenadorattack = True
+
                 else:
                     self.lenadorattack = False
                     self.len_attack = 1
             elif self.kind == 1:
                 if reloj % i == 0:  # Avance del escudero
                     self.lenadorwalk = True
+                    self.entre()
+                    self.len_walk = 0
                 else:
                     self.lenadorwalk = False
                     self.len_walk = 1
@@ -437,6 +449,8 @@ def Juego():
             elif self.kind == 2:
                 if reloj % e == 0:  # Avance del lenador
                     self.lenadorwalk = True
+                    self.entre()
+                    self.len_walk = 0
                 else:
                     self.lenadorwalk = False
                     self.len_walk = 1
@@ -448,6 +462,8 @@ def Juego():
             elif self.kind == 3:
                 if reloj % g == 0:  # Avance del canibal
                     self.lenadorwalk = True
+                    self.entre()
+                    self.len_walk = 0
                 else:
                     self.lenadorwalk = False
                     self.len_walk = 1
@@ -456,26 +472,23 @@ def Juego():
                 else:
                     self.lenadorattack = False
                     self.len_attack = 1
-                    
-        def avance(self, y, tiempo, screen):
-            while self.rect.centery > position_fila[y]:
+
+        def entre (self):
+            if self.lenadorwalk and self.len_walk != 0:
+                aux_y = self.y - 1
+                self.avance(aux_y, screen)
+
+        def avance(self, y, screen):
+            while self.posy > position_fila[y]:
                 self.posImagen += 1
                 self.tiempoCambio += 1
                 if self.posImagen > len(self.walk)-1:
                     self.posImagen = 0
+
+                self.posy -= self.speed
                 self.Draw(screen)
-                self.rect.centery -= self.speed
-                '''
-                print('n ',n)
-                print('len ', len(self.walk)-1)
-                if n < (len(self.walk)-1):
-                    n += 1
-                else:
-                    print('entre')
-                    n = 0
-                screen.blit(self.walk[n], self.rect)
-                '''
-            self.r  -= 1
+                clock.tick(50)
+            self.y  -= 1
 
         def Attack(self, x, y):
             myAtaque = Hacha(x,y,'Images/h1.png')
@@ -485,7 +498,25 @@ def Juego():
         def Draw(self, superficie):
             #if self.walkCount
             self.imagenLenador = self.image
-            superficie.blit(self.imagenLenador, self.rect)
+            print(self.posx, self.posy)
+            superficie.blit(self.imagenLenador, (self.posx, self.posy))
+
+    class Hacha(pygame.sprite.Sprite):
+        def __init__(self, posx, posy, ruta):
+            pygame.sprite.Sprite.__init__(self)   #Permite que la clase utilice los sprites
+            self.imagenHacha = pygame.image.load(ruta)
+            self.rect = self.imagenHacha.get_rect()
+            self.speed = 5
+            self.rect.top = posy
+            self.rect.left = posx
+            #self.disparoPersonaje = personaje
+
+        def trayectoria(self):
+            #if self.disparoPersonaje == True:
+            self.rect.top = self.rect.top - self.speed
+
+        def Draw(self, screen):
+            screen.blit(self.imagenHacha, self.rect)
 
     """
     Objeto:Bullet
@@ -529,25 +560,9 @@ def Juego():
             self.c = c
             self.y += self.cambioY
 
-    class Hacha(pygame.sprite.Sprite):
-        def __init__(self, posx, posy, ruta):
-            pygame.sprite.Sprite.__init__(self)   #Permite que la clase utilice los sprites
-            self.imagenHacha = pygame.image.load(ruta)
-            self.rect = self.imagenHacha.get_rect()
-            self.speed = 5
-            self.rect.top = posy
-            self.rect.left = posx
-            #self.disparoPersonaje = personaje
-
-        def trayectoria(self):
-            #if self.disparoPersonaje == True:
-            self.rect.top = self.rect.top - self.speed
-
-        def Draw(self, screen):
-            screen.blit(self.imagenHacha, self.rect)
 
 
-    avatar = Lenador(4, 8, 3)  # llamar al lenador
+
     inGame = True  # si aun el jugador sigue con vida
 
     clock = pygame.time.Clock()
@@ -564,25 +579,25 @@ def Juego():
         for elem in lista_enemigos:
             elem.Move()
             elem.Draw(screen)
+            for x in elem.list_attack:
+                x.trayectoria()
+                x.Draw(screen)
+                if x.rect.top < 1:
+                    elem.list_attack.remove(x)
 
         global lenadorwalk, len_walk
         clock.tick(30)
         keys = pygame.key.get_pressed() #si una tecla es presionada
-        avatar.Move()
+
 
         for event in pygame.event.get():
             #Mantiene la ventana abierta
             if inGame:
-##                print(reloj)
                 #Generar enemigos aleatoreamente
 
 
                 relojEnemigo = pygame.time.get_ticks()
-                Generator = pygame.USEREVENT+1
-                pygame.time.set_timer(Generator, 3000)
-                #if reloj % 5 == 0 and aux_reloj == True:
-                #if event.type == Generator:
-                #print('reloj',relojEnemigo,' tiempo', tiempoEnemigo, ' enemigo', enemigoCoolDown)
+
                 if relojEnemigo - tiempoEnemigo > enemigoCoolDown:
                     # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
                     avatarchoice = randint(0, 3)
@@ -594,29 +609,13 @@ def Juego():
                         matriz[8][x] = 2
 
 
-                if lenadorwalk and len_walk != 0:
-                    aux_y = avatar.y - 1
-                    avatar.avance(aux_y, reloj, screen)
-                    len_walk = 0
-
-                if lenadorattack and len_attack != 0:
-                    x,y = avatar.rect.center
-                    avatar.Attack(x, y)
-                    len_attack = 0
-                #generator() #llama la funcion para generar enemigos
-
-
 
             pos = pygame.mouse.get_pos()
 
-            if inGame:
-                if keys[pygame.K_DOWN]:
-                    #screen.blit(tablero, (0, 0))
-                    avatar.rect.bottom += avatar.speed
-                if keys[pygame.K_UP]:
-                    #screen.blit(tablero, (0, 0))
-                    avatar.rect.top -= avatar.speed
-
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                sys.exit()
 
             #Asignar valor a la matriz se le hace click
             if event.type == pygame.MOUSEBUTTONDOWN:
