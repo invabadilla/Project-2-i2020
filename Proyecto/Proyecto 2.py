@@ -173,11 +173,8 @@ def inicio():
                     running = False
                     Juego()
                 elif botonContinuar.isOver(pos):
-                    global continuar
                     running = False
                     continuar = True
-                    print(continuar)
-                    Juego()
                 elif botonSalon.isOver(pos):
                     for ventana in ventanas:
                         ventana = False
@@ -251,7 +248,45 @@ def Juego():
     rockCooldown = 5000
     fireCooldown = 6000
     waterCooldown = 6000
+    #Velocidad de avance y ataque de los avatars
+    #Arquero
+    a = 3
+    b = 4
+    #Escudero
+    i = 4
+    d = 5
+    #Lenador
+    e = 7
+    f = 4
+    #Canibal
+    g = 4
+    h = 5
+    if continuar:
+        matriz = np.load("matrizJuego.npy")
+    else:
+        matriz = np.zeros((9,5))
+    for n in range(0,9):
+        for m in range(0,5):
+            if matriz[n][m] == 1:
+                rook.append(Rook("Sand",n,m))
+            elif matriz[n][m] == 2:
+                rook.append(Rook("Rock",n,m))
+            elif matriz[n][m] == 3:
+                rook.append(Rook("Fire",n,m))
+            elif matriz[n][m] == 4:
+                rook.append(Rook("Water",n,m))
 
+    '''archivo = open("Configuracion.txt","r")
+    archivo.seek(0)
+    a = int(archivo.read(1))
+    b = int(archivo.read(1))
+    i = int(archivo.read(1))
+    d = int(archivo.read(1))
+    e = int(archivo.read(1))
+    f = int(archivo.read(1))
+    g = int(archivo.read(1))
+    h = int(archivo.read(1))
+    archivo.close()'''
 
     """
     Objeto: Coin
@@ -274,7 +309,7 @@ def Juego():
             elif self.img == coinImgs[2]:
                 self.valor = 100
         def draw(self):
-            screen.blit(self.img, (position_columna[self.c]-30,position_fila[self.r]-35))
+            screen.blit(self.img, (position_columna[self.c]-30,position_fila[self.r]-15))
 
     """
     Objetos: Rook
@@ -350,8 +385,6 @@ def Juego():
         clock = pygame.time.Clock()
         def __init__(self, x, y, kind):
             pygame.sprite.Sprite.__init__(self)
-            self.x = x
-            self.y = y
             self.kind = kind
             if self.kind == 0:
                 self.image = pygame.image.load('Images/a_a1.png')
@@ -410,8 +443,10 @@ def Juego():
             if self.kind == 0:
                 if reloj % a == 0:  # Avance del arquero
                     if self.cont == 0:
+                        matriz[self.c][self.r] = 0
                         self.c -= 1
                         self.cont = 1
+                        matriz[self.c][self.r] = 5
                 else:
                     self.cont = 0
                     self.imagenLenador = self.image
@@ -424,8 +459,10 @@ def Juego():
             elif self.kind == 1:
                 if reloj % i == 0:  # Avance del escudero
                     if self.cont == 0:
+                        matriz[self.c][self.r] = 0
                         self.c -= 1
                         self.cont = 1
+                        matriz[self.c][self.r] = 6
                 else:
                     self.cont = 0
                     self.imagenLenador = self.image
@@ -437,8 +474,10 @@ def Juego():
             elif self.kind == 2:
                 if reloj % e == 0:  # Avance del lenador
                     if self.cont == 0:
+                        matriz[self.c][self.r] = 0
                         self.c -= 1
                         self.cont = 1
+                        matriz[self.c][self.r] = 7
                 else:
                     self.cont = 0
                     self.imagenLenador = self.image
@@ -450,8 +489,10 @@ def Juego():
             elif self.kind == 3:
                 if reloj % g == 0:  # Avance del canibal
                     if self.cont == 0:
+                        matriz[self.c][self.r] = 0
                         self.c -= 1
                         self.cont = 1
+                        matriz[self.c][self.r] = 8
                 else:
                     self.imagenLenador = self.image
                     self.cont = 0
@@ -465,7 +506,7 @@ def Juego():
             screen.blit(self.imagenLenador, (int(self.x), int(self.y)))
 
         def trayectoria(self):
-##            print(self.c, position_fila[self.c -1], reloj, a)
+            #print(self.c, position_fila[self.c -1], reloj, a)
             if self.y > position_fila[self.c-1]:
                 self.posImagen += 1
                 self.tiempoCambio += 1
@@ -473,7 +514,7 @@ def Juego():
                     self.posImagen = 0
                 self.imagenLenador = self.walk[self.posImagen]
                 x = int(math.floor(self.y / TAM_CASILLA))
-                self.r = x
+                #self.r = x
                 #self.c = y
                 self.y -= self.cambioY
 
@@ -547,36 +588,6 @@ def Juego():
     enemigoCoolDowns = [3000, 4000, 5000]
     tiempoEnemigo = pygame.time.get_ticks()
 
-   #Velocidad de avance y ataque de los avatars
-    #Arquero
-    a = 3
-    b = 4
-    #Escudero
-    i = 4
-    d = 5
-    #Lenador
-    e = 7
-    f = 4
-    #Canibal
-    g = 4
-    h = 5
-    if continuar:
-        matriz = np.load("matrizJuego.npy")
-    else:
-        matriz = np.zeros((9,5))
-        rooks = []
-        coins = []
-        #Necesito que aquí vacie la lista de enemigos
-    for n in range(0,9):
-        for m in range(0,5):
-            if matriz[n][m] == 1:
-                rooks.append(Rook("Sand",m,n))
-            elif matriz[n][m] == 2:
-                rooks.append(Rook("Rock",m,n))
-            elif matriz[n][m] == 3:
-                rooks.append(Rook("Fire",m,n))
-            elif matriz[n][m] == 4:
-                rooks.append(Rook("Water",m,n))
 
     while running:
         global lenadorwalk, len_walk, listaHacha, lenadorattack, len_attack, lista_enemigos
@@ -590,6 +601,7 @@ def Juego():
         if relojEnemigo - tiempoEnemigo > enemigoCoolDown:
             # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
             avatarchoice = randint(0, 3)
+            avatarchoice = 0
             x = randint(0, 4)
             tiempoEnemigo = relojEnemigo
             # enemigoCoolDown = random.choice(enemigoCoolDowns)
@@ -672,7 +684,7 @@ def Juego():
 
         #Mantener las instancias en pantalla
         screen.fill((200, 200, 200))
-        screen.blit(tablero, (370, -20))
+        screen.blit(tablero, (370, 0))
         monedasText = font.render("Monedas: " + str(monedas), 1, MORADO_OSCURO, (200,200,200))
         screen.blit(monedasText, (5, 10))
         screen.blit(jugadorText, (5, 40))
