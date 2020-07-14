@@ -9,6 +9,7 @@ pygame.init()
 
 #Variables globales
 continuar = False
+jugador = ""
 ancho = 900
 alto = 700
 fila = [145, 180, 220, 260, 300, 340, 375, 415, 435]
@@ -27,7 +28,6 @@ GRIS = (214,202,252,99)
 AMARILLO = (253,218,76,99)
 CAFE = (201,184,141,79)
 tablero = pygame.image.load('lawn2.png') #Que hace esto aquí? XD
-
 #Diferentes fuentes
 fontTitulo = pygame.font.SysFont("Neuropol X Rg", 50)
 font = pygame.font.SysFont("Neuropol X Rg", 35)
@@ -94,6 +94,29 @@ class Button():
         if pos[0] > self.x and pos[0] < self.x + self.width:
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
+            
+class Entry():
+    def __init__(self, x, y, width, height, text, color):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+        self.color = color
+
+    def draw(self):
+        font = pygame.font.SysFont("SeriesOrbit", 35)
+        text = font.render(self.text, 1 , MORADO_OSCURO)
+        pygame.draw.rect(screen, (255,255,255), (self.x,self.y,self.width ,self.height),0)
+        screen.blit(text , (self.x, self.y))
+
+    def typing(self, event):
+        if len(self.text) < 15:
+            self. text += event.unicode
+        if event.key == pygame.K_BACKSPACE:
+            self.text = self.text[:-1]
+
+
 
 def inicio():
     
@@ -104,8 +127,10 @@ def inicio():
     botonConfig = Button(MORADO_CLARO,100,300,220,70,None,"Configuracion")
     botonAyuda = Button(MORADO_CLARO,160,400,110,70,None,"Ayuda")
     botonCreditos = Button(MORADO_CLARO,130,500,150,70,None,"Creditos")
-    botonExit = Button(MORADO_CLARO,170,600,80,70,None,"Exit")
+    botonExit = Button(MORADO_CLARO,130,600,150,70,None,"Exit")
     listaBotones = [botonPlay,botonContinuar,botonSalon,botonConfig,botonAyuda,botonCreditos,botonExit]
+    #Instancias de Entries
+    entryJugador = Entry(500,50,210,30,"",MORADO_OSCURO)
     #Variables para desplegar las diferentes secciones
     ayuda = False
     config = False
@@ -113,6 +138,8 @@ def inicio():
     creditos = False
     ventanas = [ayuda, config, salon, creditos]
     #Textos
+    jugadorText = font.render("Jugador: ", 1, MORADO_OSCURO)
+    """-----------"""
     comoJugarText = fontTitulo.render("¿Como Jugar?", 1, MORADO_OSCURO)
     ayudaText0 = font.render("El juego es un tower defense", 1, MORADO_OSCURO)
     ayudaText1 = font.render("de estrategia en el que los", 1, MORADO_OSCURO)
@@ -130,9 +157,11 @@ def inicio():
 
     while running:
         screen.fill(GRIS)
+        screen.blit(jugadorText, (390, 52))
 
         for boton in listaBotones: # Mantiene los botones
             boton.draw(screen,(0,0,0))
+        entryJugador.draw()
 
         if salon: #Si se clica el boton Salon
             pass
@@ -160,8 +189,9 @@ def inicio():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-                sys.exit()      #Cerrar pygame sin ventana de error
-
+                sys.exit() #Cerrar pygame sin ventana de error
+            if event.type == pygame.KEYDOWN:
+                entryJugador.typing(event)
             if event.type == pygame.MOUSEMOTION:
                 for boton in listaBotones:
                     if boton.isOver(pos):
@@ -170,6 +200,8 @@ def inicio():
                         boton.color = AMARILLO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if botonPlay.isOver(pos):
+                    global jugador
+                    jugador = entryJugador.text
                     running = False
                     Juego()
                 elif botonContinuar.isOver(pos):
@@ -214,7 +246,6 @@ def Juego():
     TAM_CASILLA = 77 #Tamaño de cada casilla
     global monedas
     monedas = 5000 #Monedas del jugador
-    jugador = "Engret y LLordi" #Nombre del jugador
     tipo = 0 #Variable que determina que rook colocar
 
     #Texto de interfaz
