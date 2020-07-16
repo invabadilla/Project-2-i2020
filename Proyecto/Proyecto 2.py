@@ -248,6 +248,7 @@ def Juego():
     global monedas
     monedas = 5000 #Monedas del jugador
     tipo = 0 #Variable que determina que rook colocar
+    contEnemigos = 20 #Variable que determina cuando se supera el nivel
 
     #Texto de interfaz
     monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
@@ -638,12 +639,13 @@ def Juego():
         global lenadorwalk, len_walk, listaHacha, lenadorattack, len_attack
         reloj = pygame.time.get_ticks()//1000
 
-        print(matriz)
         #clock.tick(30)
         # Generar enemigos aleatoreamente
         relojEnemigo = pygame.time.get_ticks()
-
-        if relojEnemigo - tiempoEnemigo > enemigoCoolDown:
+        if contEnemigos == 0:
+            print("ganaste")
+        
+        if relojEnemigo - tiempoEnemigo > enemigoCoolDown and contEnemigos != 0:
         
             # Random choice: 0=arquero, 1=escudero, 2=lenador, 3=canibal
             avatarchoice = random.choice(enemigosDisponibles)
@@ -651,6 +653,7 @@ def Juego():
             tiempoEnemigo = relojEnemigo
             # enemigoCoolDown = random.choice(enemigoCoolDowns)
             lista_enemigos.append(Lenador(x, 8, avatarchoice))
+            contEnemigos += 1
             if matriz[8][x] == 0:
                 if avatarchoice == 0:
                     matriz[8][x] = 5
@@ -761,6 +764,7 @@ def Juego():
                                 enemigo.vida -= proyectil.dano
                                 if enemigo.vida <= 0:
                                     monedas += 100
+                                    print(enemigo.c,enemigo.r)
                                     lista_enemigos.remove(enemigo)
 
                                 
