@@ -657,16 +657,16 @@ def Juego():
     TAM_CASILLA = 77 #Tamaño de cada casilla
     tipo = 0 #Variable que determina que rook colocar
     contEnemigos = 5 #Variable que determina cuando se supera el nivel
+    monedas = 100
 
     #Texto de interfaz
     jugadorText = font.render("Jugador: "+str(jugador), 1, MORADO_OSCURO)
     #Imágenes
-    fondo = pygame.image.load('lawn1.png')
     coinImgs = [pygame.image.load('Coin0.png'),pygame.image.load('Coin1.png'),pygame.image.load('Coin2.png')]
     rookImgs = [pygame.image.load("Sand.png"),pygame.image.load("Rock.png"), pygame.image.load("Fire.png"), pygame.image.load("Water.png")]
     bulletImgs = [pygame.image.load("Dust.png"), pygame.image.load("BulletRock.png"), pygame.image.load("Fireball.png"), pygame.image.load("Waterdrop.png")]
     muteImg = pygame.image.load('Mute.png')
-    tableros = [pygame.image.load('lawn2.png'), pygame.image.load('lawn1.png'), pygame.image.load('lawn3.jpg')]
+    tableros = [pygame.image.load('lawn2.jpg'), pygame.image.load('lawn1.jpg'), pygame.image.load('lawn3.jpg')]
     #Efectos de sonido
     global estadoMusica
     estadoMusica = True
@@ -1152,7 +1152,6 @@ def Juego():
         nextLevel()
         matriz = np.load("matrizJuego.npy")
     else:
-        monedas = 100
         matriz = np.zeros((9,5))
         level = 0
     for n in range(0,9):
@@ -1175,7 +1174,21 @@ def Juego():
                 enemigos.append(Lenador(m,n,"Canibal"))
 
     monedasText = font.render("Monedas: "+str(monedas), 1, MORADO_OSCURO)
-
+    
+    """
+    Objeto:Fuegos
+    Atributos:
+    x: int
+    y: int
+    images: lista
+    pos: int
+    image = imagen de la lista
+    Métodos:
+    mover():
+    Crea la animacion
+    draw():
+    Dibuja los objetos en pantalla 
+    """
     class Fuegos():
         def __init__(self, x, y):
             self.x = x
